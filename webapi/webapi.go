@@ -224,8 +224,6 @@ func (api *Webapi) GetALLUsers(info *model.NodeInfo) (*AllUsers, error) {
 		}
 	}
 	for index := range response.Data {
-		key := prifix + response.Data[index].Email
-		response.Data[index].PrefixedId = key
 		// 按照node 限速来调整用户限速
 		if info.NodeSpeedlimit != 0 && info.NodeSpeedlimit < response.Data[index].NodeSpeedlimit {
 			response.Data[index].NodeSpeedlimit = info.NodeSpeedlimit
@@ -240,6 +238,10 @@ func (api *Webapi) GetALLUsers(info *model.NodeInfo) (*AllUsers, error) {
 				response.Data[index].AlterId = uint32(alterid)
 			}
 		}
+		key := prifix + response.Data[index].Email + fmt.Sprintf("Rate_%d_AlterID_%d_Method_%s_Passwd_%s_Port_%d", response.Data[index].Rate,
+			response.Data[index].AlterId, response.Data[index].Method, response.Data[index].Passwd, response.Data[index].Port,
+		)
+		response.Data[index].PrefixedId = key
 		allusers.Data[key] = response.Data[index]
 	}
 	return &allusers, nil
