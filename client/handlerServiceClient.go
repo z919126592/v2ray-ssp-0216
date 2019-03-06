@@ -142,6 +142,7 @@ func (h *HandlerServiceClient) AddVmessInbound(port uint16, address string, stre
 				User: []*protocol.User{
 					{
 						Level: 0,
+						Rate:  0,
 						Email: "rico93@xxx.com",
 						Account: serial.ToTypedMessage(&vmess.Account{
 							Id:      protocol.NewID(uuid.New()).String(),
@@ -213,6 +214,7 @@ func (h *HandlerServiceClient) AddMTInbound(port uint16, address string, streams
 					{
 						Level: 0,
 						Email: "rico93@xxx.com",
+						Rate:  0,
 						Account: serial.ToTypedMessage(&mtproto.Account{
 							Secret: utility.MD5(utility.GetRandomString(16)),
 						}),
@@ -267,6 +269,7 @@ func (h *HandlerServiceClient) ConvertVmessUser(userModel model.UserModel) *prot
 	return &protocol.User{
 		Level: 0,
 		Email: userModel.Email,
+		Rate:  userModel.Rate,
 		Account: serial.ToTypedMessage(&vmess.Account{
 			Id:      userModel.Uuid,
 			AlterId: userModel.AlterId,
@@ -280,6 +283,7 @@ func (h *HandlerServiceClient) ConverSSUser(userModel model.UserModel) *protocol
 	return &protocol.User{
 		Level: 0,
 		Email: userModel.Email,
+		Rate:  userModel.Rate,
 		Account: serial.ToTypedMessage(&shadowsocks.Account{
 			Password:   userModel.Passwd,
 			CipherType: CipherTypeMap[strings.ToLower(userModel.Method)],
@@ -292,6 +296,7 @@ func (h *HandlerServiceClient) ConverMTUser(userModel model.UserModel) *protocol
 	return &protocol.User{
 		Level: 0,
 		Email: userModel.Email,
+		Rate:  userModel.Rate,
 		Account: serial.ToTypedMessage(&mtproto.Account{
 			Secret: utility.MD5(userModel.Uuid),
 		}),

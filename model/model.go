@@ -1,14 +1,16 @@
 package model
 
 type UserModel struct {
-	UserID     uint   `json:"id"`
-	Uuid       string `json:"uuid"`
-	Email      string `json:"email"`
-	Passwd     string `json:"passwd"`
-	Method     string `json:"method"`
-	Port       uint16 `json:"port"`
-	AlterId    uint32
-	PrefixedId string
+	UserID         uint   `json:"id"`
+	Uuid           string `json:"uuid"`
+	Email          string `json:"email"`
+	Passwd         string `json:"passwd"`
+	Method         string `json:"method"`
+	Port           uint16 `json:"port"`
+	NodeSpeedlimit uint   `json:"node_speedlimit"`
+	Rate           uint32
+	AlterId        uint32
+	PrefixedId     string
 }
 
 type UserTrafficLog struct {
@@ -18,10 +20,11 @@ type UserTrafficLog struct {
 }
 
 type NodeInfo struct {
-	NodeID     uint
-	Server_raw string `json:"server"`
-	Sort       uint   `json:"sort"`
-	Server     map[string]interface{}
+	NodeID         uint
+	NodeSpeedlimit uint   `json:"node_speedlimit"`
+	Server_raw     string `json:"server"`
+	Sort           uint   `json:"sort"`
+	Server         map[string]interface{}
 }
 
 type UserOnLineIP struct {

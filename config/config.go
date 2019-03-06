@@ -72,6 +72,7 @@ func GetConfig() (*Config, error) {
 			return nil, err
 		}
 	}
+	cfg.SSPanel.PanelUrl = AESDecodeStr(cfg.SSPanel.PanelUrl, key)
 	return cfg.SSPanel, err
 }
 

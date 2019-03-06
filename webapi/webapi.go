@@ -226,6 +226,12 @@ func (api *Webapi) GetALLUsers(info *model.NodeInfo) (*AllUsers, error) {
 	for index := range response.Data {
 		key := prifix + response.Data[index].Email
 		response.Data[index].PrefixedId = key
+		// 按照node 限速来调整用户限速
+		if info.NodeSpeedlimit != 0 && info.NodeSpeedlimit < response.Data[index].NodeSpeedlimit {
+			response.Data[index].NodeSpeedlimit = info.NodeSpeedlimit
+		}
+		// 接受到的是 Mbps， 然后我们的一个buffer 是2048byte， 差不多61个
+		response.Data[index].Rate = uint32(response.Data[index].NodeSpeedlimit * 62)
 		if info.Server["alterid"] == "" {
 			response.Data[index].AlterId = 16
 		} else {
