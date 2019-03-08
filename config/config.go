@@ -39,6 +39,7 @@ type Config struct {
 	PanelUrl           string `json:"panelUrl"`
 	PanelKey           string `json:"panelKey"`
 	SpeedTestCheckRate int    `json:"speedTestCheckrate"`
+	DownWithPanel      int    `json:"downWithPanel"`
 	V2rayConfig        *conf.Config
 }
 
@@ -72,7 +73,6 @@ func GetConfig() (*Config, error) {
 			return nil, err
 		}
 	}
-	cfg.SSPanel.PanelUrl = AESDecodeStr(cfg.SSPanel.PanelUrl, key)
 	return cfg.SSPanel, err
 }
 

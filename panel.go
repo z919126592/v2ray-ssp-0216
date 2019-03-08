@@ -18,6 +18,7 @@ type Panel struct {
 	db              *webapi.Webapi
 	manager         *Manager.Manager
 	speedtestClient speedtest.Client
+	downwithpanel   int
 }
 
 func NewPanel(gRPCConn *grpc.ClientConn, db *webapi.Webapi, cfg *config.Config) (*Panel, error) {
@@ -26,6 +27,7 @@ func NewPanel(gRPCConn *grpc.ClientConn, db *webapi.Webapi, cfg *config.Config) 
 	var newpanel = Panel{
 		speedtestClient: speedtestClient,
 		db:              db,
+		downwithpanel:   cfg.DownWithPanel,
 		manager: &Manager.Manager{
 			HandlerServiceClient:  client.NewHandlerServiceClient(gRPCConn, "MAIN_INBOUND"),
 			StatsServiceClient:    client.NewStatsServiceClient(gRPCConn),
@@ -110,12 +112,16 @@ func (p *Panel) updateManager() {
 	newNodeinfo, err := p.db.GetNodeInfo(p.manager.NodeID)
 	if err != nil {
 		newError(err).AtWarning().WriteToLog()
-		p.initial()
+		if p.downwithpanel == 1 {
+			p.initial()
+		}
 		return
 	}
 	if newNodeinfo.Ret != 1 {
 		newError(newNodeinfo.Data).AtWarning().WriteToLog()
-		p.initial()
+		if p.downwithpanel == 1 {
+			p.initial()
+		}
 		return
 	}
 	newErrorf("old node info %s ", p.manager.NextNodeInfo.Server_raw).AtInfo().WriteToLog()
@@ -177,12 +183,16 @@ func (p *Panel) updateOutbounds() {
 	data, err := p.db.GetDisNodeInfo(p.manager.NodeID)
 	if err != nil {
 		newError(err).AtWarning().WriteToLog()
-		p.initial()
+		if p.downwithpanel == 1 {
+			p.initial()
+		}
 		return
 	}
 	if data.Ret != 1 {
 		newError(data.Data).AtWarning().WriteToLog()
-		p.initial()
+		if p.downwithpanel == 1 {
+			p.initial()
+		}
 		return
 	}
 	if len(data.Data) > 0 {

@@ -11,7 +11,7 @@ import (
 
 var ivspec = []byte("0000000000000000")
 
-const key = "iKwb6Kt5pnqcVZcd"
+const Key = "iKwb6Kt5pnqcVZcd"
 
 func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
 	padding := blockSize - len(ciphertext)%blockSize

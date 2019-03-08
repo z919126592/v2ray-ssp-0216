@@ -37,6 +37,10 @@ type DisNodenfoResponse struct {
 	Ret  uint                 `json:"ret"`
 	Data []*model.DisNodeInfo `json:"data"`
 }
+type AuthResponse struct {
+	Ret   uint   `json:"ret"`
+	Token string `json:"token"`
+}
 
 var id2string = map[uint]string{
 	0: "server_address",
@@ -346,4 +350,24 @@ func (api *Webapi) UpLoadOnlineIps(nodeid uint, onlineIPS []model.UserOnLineIP) 
 		}
 	}
 	return true
+}
+
+func (api *Webapi) CheckAuth(url string, params map[string]interface{}) (*AuthResponse, error) {
+	var response = AuthResponse{}
+	parm := req.Param{}
+	for k, v := range params {
+		parm[k] = v
+	}
+	r, err := req.Get(url, parm)
+	if err != nil {
+		return nil, err
+	} else {
+		err = r.ToJSON(&response)
+		if err != nil {
+			return &response, err
+		} else if response.Ret != 1 {
+			return nil, err
+		}
+	}
+	return &response, nil
 }
