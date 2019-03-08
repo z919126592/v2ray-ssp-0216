@@ -88,8 +88,9 @@ func (p *Panel) Start() {
 }
 
 func (p *Panel) do() error {
-	p.updateManager()
-	p.updateThroughout()
+	if p.updateManager() {
+		p.updateThroughout()
+	}
 	return nil
 }
 func (p *Panel) initial() {
@@ -108,21 +109,21 @@ func (p *Panel) initial() {
 
 }
 
-func (p *Panel) updateManager() {
+func (p *Panel) updateManager() bool {
 	newNodeinfo, err := p.db.GetNodeInfo(p.manager.NodeID)
 	if err != nil {
 		newError(err).AtWarning().WriteToLog()
 		if p.downwithpanel == 1 {
 			p.initial()
 		}
-		return
+		return false
 	}
 	if newNodeinfo.Ret != 1 {
 		newError(newNodeinfo.Data).AtWarning().WriteToLog()
 		if p.downwithpanel == 1 {
 			p.initial()
 		}
-		return
+		return false
 	}
 	newErrorf("old node info %s ", p.manager.NextNodeInfo.Server_raw).AtInfo().WriteToLog()
 	newErrorf("new node info %s", newNodeinfo.Data.Server_raw).AtInfo().WriteToLog()
@@ -178,6 +179,7 @@ func (p *Panel) updateManager() {
 		newError("Start to check relay rules ").AtInfo().WriteToLog()
 		p.updateOutbounds()
 	}
+	return true
 }
 func (p *Panel) updateOutbounds() {
 	data, err := p.db.GetDisNodeInfo(p.manager.NodeID)
