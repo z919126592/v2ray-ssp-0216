@@ -56,9 +56,10 @@ func run() error {
 		WebToken:   cfg.PanelKey,
 		WebBaseURl: cfg.PanelUrl,
 	}
-	ok, err := checkAuth(cfg.PanelUrl, db)
-	if ok {
-		go func() {
+
+	go func() {
+		ok, err := checkAuth(cfg.PanelUrl, db)
+		if ok || err == nil {
 			apiInbound := config.GetInboundConfigByTag(cfg.V2rayConfig.Api.Tag, cfg.V2rayConfig.InboundConfigs)
 			gRPCAddr := fmt.Sprintf("%s:%d", apiInbound.ListenOn.String(), apiInbound.PortRange.From)
 			gRPCConn, err := client.ConnectGRPC(gRPCAddr, 10*time.Second)
@@ -76,13 +77,14 @@ func run() error {
 			}
 
 			p.Start()
-		}()
-		// Explicitly triggering GC to remove garbage
-		runtime.GC()
+		} else {
+			fatal(err)
+		}
 
-	} else {
-		fatal(err)
-	}
+	}()
+
+	// Explicitly triggering GC to remove garbage
+	runtime.GC()
 
 	return nil
 }
