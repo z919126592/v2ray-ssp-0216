@@ -280,21 +280,23 @@ config.json Example
   },
   "stats": {},
   "sspanel": {
-    "nodeId": 20,
+    "nodeid": 123456,
     "checkRate": 60,
     "SpeedTestCheckRate": 6,
-    "panelUrl": "xxxx",
-    "panelKey": "xxxx",
+    "panelUrl": "https://google.com",
+    "panelKey": "55fUxDGFzH3n",
     "downWithPanel": 1,
     "mysql": {
-          "host": "127.0.0.1",
-          "port": 3306,
-          "user": "root",
-          "password": "sspanel",
-          "dbname": "sspanel"
-        }
+      "host": "https://bing.com",
+      "port": 3306,
+      "user": "demo_user",
+      "password": "demo_dbpassword",
+      "dbname": "demo_dbname"
+    },
+    "paneltype": 0
   }
 }
+
 ~~~
 ##### 安装caddy
 

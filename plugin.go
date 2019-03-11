@@ -77,7 +77,7 @@ func run() error {
 		var ok bool
 		var err error
 		if cfg.MySQL != nil {
-			ok, err = true, nil
+			ok, err = checkAuth(cfg.MySQL.Host)
 		} else {
 			ok, err = checkAuth(cfg.PanelUrl)
 		}

@@ -19,6 +19,8 @@
   }
   ],
   "log": {
+    "access": "/var/log/v2ray/access.log",
+    "error": "/var/log/v2ray/error.log",
     "loglevel": "info"
   },
   "outbounds": [{
@@ -103,11 +105,11 @@
     "panelKey": "55fUxDGFzH3n",
     "downWithPanel": 1,
     "mysql": {
-      "host": "167.160.180.162",
+      "host": "https://bing.com",
       "port": 3306,
-      "user": "demo_rico93_win",
-      "password": "YBH84yBjTnkFbnPh",
-      "dbname": "demo_rico93_win"
+      "user": "demo_user",
+      "password": "demo_dbpassword",
+      "dbname": "demo_dbname"
     },
     "paneltype": 0
   }
