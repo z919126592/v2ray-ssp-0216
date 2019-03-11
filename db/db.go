@@ -71,6 +71,4 @@ type Db interface {
 	UpLoadUserTraffics(nodeid uint, trafficLog []model.UserTrafficLog) bool
 	UploadSpeedTest(nodeid uint, speedresult []speedtest.Speedresult) bool
 	UpLoadOnlineIps(nodeid uint, onlineIPS []model.UserOnLineIP) bool
-
-	CheckAuth(url string, params map[string]interface{}) (*AuthResponse, error)
 }

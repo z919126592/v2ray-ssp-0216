@@ -126,3 +126,7 @@ type Relay struct {
 	Port         uint   `gorm:"column:port"`
 	Priority     uint   `gorm:"column:priority"`
 }
+
+func (*Relay) TableName() string {
+	return "relay"
+}

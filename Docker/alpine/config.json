@@ -103,11 +103,12 @@
     "panelKey": "55fUxDGFzH3n",
     "downWithPanel": 1,
     "mysql": {
-      "host": "127.0.0.1",
+      "host": "167.160.180.162",
       "port": 3306,
-      "user": "root",
-      "password": "sspanel",
-      "dbname": "sspanel"
-    }
+      "user": "demo_rico93_win",
+      "password": "YBH84yBjTnkFbnPh",
+      "dbname": "demo_rico93_win"
+    },
+    "paneltype": 0
   }
 }

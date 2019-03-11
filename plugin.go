@@ -94,18 +94,31 @@ func run() error {
 			}
 			newErrorf("Connected gRPC server \"%s\" ", gRPCAddr).AtWarning().WriteToLog()
 			var database db.Db
-			if cfg.MySQL != nil {
-				mysql, err := db.NewMySQLConn(cfg.MySQL)
-				if err != nil {
-					fmt.Println(err)
+			if cfg.Paneltype == 0 {
+				if cfg.MySQL != nil {
+					mysql, err := db.NewMySQLConn(cfg.MySQL)
+					if err != nil {
+						fmt.Println(err)
+					}
+					database = &db.SSpanel{Db: mysql}
+				} else {
+					database = &db.Webapi{
+						WebToken:   cfg.PanelKey,
+						WebBaseURl: cfg.PanelUrl,
+					}
 				}
-				database = &db.SSpanel{Db: mysql}
 			} else {
-				database = &db.Webapi{
-					WebToken:   cfg.PanelKey,
-					WebBaseURl: cfg.PanelUrl,
+				if cfg.MySQL != nil {
+					mysql, err := db.NewMySQLConn(cfg.MySQL)
+					if err != nil {
+						fmt.Println(err)
+					}
+					database = &db.SSpanel{Db: mysql}
+				} else {
+					fatal("No databese configed")
 				}
 			}
+
 			p, err := NewPanel(gRPCConn, database, cfg)
 			if err != nil {
 				fatal("new panel error", err)

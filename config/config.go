@@ -72,6 +72,7 @@ type Config struct {
 	SpeedTestCheckRate int          `json:"speedTestCheckrate"`
 	DownWithPanel      int          `json:"downWithPanel"`
 	MySQL              *MySQLConfig `json:"mysql"`
+	Paneltype          int          `json:"paneltype"`
 	V2rayConfig        *conf.Config
 }
 
