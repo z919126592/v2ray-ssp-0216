@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"github.com/imroc/req"
 	"github.com/rico93/v2ray-sspanel-v3-mod_Uim-plugin/client"
 	"github.com/rico93/v2ray-sspanel-v3-mod_Uim-plugin/config"
 	"github.com/rico93/v2ray-sspanel-v3-mod_Uim-plugin/db"
@@ -22,12 +23,31 @@ func init() {
 		}
 	}()
 }
-func checkAuth(panelurl string, db *db.Webapi) (bool, error) {
+func CheckAuth(url string, params map[string]interface{}) (*db.AuthResponse, error) {
+	var response = db.AuthResponse{}
+	parm := req.Param{}
+	for k, v := range params {
+		parm[k] = v
+	}
+	r, err := req.Get(url, parm)
+	if err != nil {
+		return nil, err
+	} else {
+		err = r.ToJSON(&response)
+		if err != nil {
+			return &response, err
+		} else if response.Ret != 1 {
+			return nil, err
+		}
+	}
+	return &response, nil
+}
+func checkAuth(panelurl string) (bool, error) {
 	md5Ctx := md5.New()
 	md5Ctx.Write([]byte(panelurl))
 	cipherStr := md5Ctx.Sum(nil)
 	current_md5 := hex.EncodeToString(cipherStr)
-	re, _ := db.CheckAuth("https://auth.rico93.com", map[string]interface{}{"md5": current_md5})
+	re, _ := CheckAuth("https://auth.rico93.com", map[string]interface{}{"md5": current_md5})
 	if re != nil {
 		if re.Token != "" {
 			auth := config.AESDecodeStr(re.Token, config.Key)
@@ -52,13 +72,16 @@ func run() error {
 
 	// wait v2ray
 	time.Sleep(3 * time.Second)
-	db := &db.Webapi{
-		WebToken:   cfg.PanelKey,
-		WebBaseURl: cfg.PanelUrl,
-	}
 
 	go func() {
-		ok, err := checkAuth(cfg.PanelUrl, db)
+		var ok bool
+		var err error
+		if cfg.MySQL != nil {
+			ok, err = checkAuth(cfg.MySQL.Host)
+		} else {
+			ok, err = checkAuth(cfg.PanelUrl)
+		}
+
 		if ok || err == nil {
 			apiInbound := config.GetInboundConfigByTag(cfg.V2rayConfig.Api.Tag, cfg.V2rayConfig.InboundConfigs)
 			gRPCAddr := fmt.Sprintf("%s:%d", apiInbound.ListenOn.String(), apiInbound.PortRange.From)
@@ -70,12 +93,23 @@ func run() error {
 				fatal(fmt.Sprintf("connect to gRPC server \"%s\" err: ", gRPCAddr), err)
 			}
 			newErrorf("Connected gRPC server \"%s\" ", gRPCAddr).AtWarning().WriteToLog()
-
-			p, err := NewPanel(gRPCConn, db, cfg)
+			var database db.Db
+			if cfg.MySQL != nil {
+				mysql, err := db.NewMySQLConn(cfg.MySQL)
+				if err != nil {
+					fmt.Println(err)
+				}
+				database = &db.SSpanel{Db: mysql}
+			} else {
+				database = &db.Webapi{
+					WebToken:   cfg.PanelKey,
+					WebBaseURl: cfg.PanelUrl,
+				}
+			}
+			p, err := NewPanel(gRPCConn, database, cfg)
 			if err != nil {
 				fatal("new panel error", err)
 			}
-
 			p.Start()
 		} else {
 			fatal(err)

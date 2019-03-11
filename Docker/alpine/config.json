@@ -101,6 +101,13 @@
     "SpeedTestCheckRate": 6,
     "panelUrl": "https://google.com",
     "panelKey": "55fUxDGFzH3n",
-    "downWithPanel": 1
+    "downWithPanel": 1,
+    "mysql": {
+      "host": "127.0.0.1",
+      "port": 3306,
+      "user": "root",
+      "password": "sspanel",
+      "dbname": "sspanel"
+    }
   }
 }

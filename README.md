@@ -285,7 +285,14 @@ config.json Example
     "SpeedTestCheckRate": 6,
     "panelUrl": "xxxx",
     "panelKey": "xxxx",
-    "downWithPanel": 1
+    "downWithPanel": 1,
+    "mysql": {
+          "host": "127.0.0.1",
+          "port": 3306,
+          "user": "root",
+          "password": "sspanel",
+          "dbname": "sspanel"
+        }
   }
 }
 ~~~

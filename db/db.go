@@ -56,16 +56,21 @@ var maps = map[string]interface{}{
 }
 
 type Db interface {
-	GetNodeInfo(uint) (*NodeinfoResponse, error)
+	GetApi(url string, params map[string]interface{}) (*req.Resp, error)
 
-	GetDisNodeInfo(uint) (*DisNodenfoResponse, error)
+	GetNodeInfo(nodeid uint) (*NodeinfoResponse, error)
 
-	GetALLUsers(*model.NodeInfo) (*AllUsers, error)
-	Post(string, map[string]interface{}, map[string]interface{}) (*req.Resp, error)
-	UploadSystemLoad(uint) bool
-	UpLoadUserTraffics(uint, []model.UserTrafficLog) bool
-	UploadSpeedTest(uint, []speedtest.Speedresult) bool
-	UpLoadOnlineIps(uint, []model.UserOnLineIP) bool
+	GetDisNodeInfo(nodeid uint) (*DisNodenfoResponse, error)
 
-	CheckAuth(string, map[string]interface{}) (*AuthResponse, error)
+	GetALLUsers(info *model.NodeInfo) (*AllUsers, error)
+
+	Post(url string, params map[string]interface{}, data map[string]interface{}) (*req.Resp, error)
+
+	UploadSystemLoad(nodeid uint) bool
+
+	UpLoadUserTraffics(nodeid uint, trafficLog []model.UserTrafficLog) bool
+	UploadSpeedTest(nodeid uint, speedresult []speedtest.Speedresult) bool
+	UpLoadOnlineIps(nodeid uint, onlineIPS []model.UserOnLineIP) bool
+
+	CheckAuth(url string, params map[string]interface{}) (*AuthResponse, error)
 }

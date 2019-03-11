@@ -25,6 +25,7 @@ type NodeInfo struct {
 	Server_raw     string `json:"server"`
 	Sort           uint   `json:"sort"`
 	Server         map[string]interface{}
+	TrafficRate    float64
 }
 
 type UserOnLineIP struct {
