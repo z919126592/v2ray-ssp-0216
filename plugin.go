@@ -74,21 +74,22 @@ func run() error {
 	time.Sleep(3 * time.Second)
 
 	go func() {
-		var ok bool
-		var err error
+		var ok, ok1 bool
+		var err, err1 error
 		if cfg.MySQL != nil {
-			ok, err = checkAuth(cfg.MySQL.Host)
 			if cfg.MySQL.Host == "https://bing.com" {
 				fatal("please check your mysql setting")
 			}
-		} else {
-			ok, err = checkAuth(cfg.PanelUrl)
-			if cfg.MySQL.Host == "https://google.com" {
-				fatal("please check your mysql setting")
+			ok, err = checkAuth(cfg.MySQL.Host)
+		}
+		if !ok || cfg.MySQL == nil {
+			if cfg.PanelUrl == "https://google.com" {
+				fatal("please check your webapi setting")
 			}
+			ok1, err1 = checkAuth(cfg.PanelUrl)
 		}
 
-		if ok || err == nil {
+		if (ok && err == nil) || (ok1 && err1 == nil) {
 			apiInbound := config.GetInboundConfigByTag(cfg.V2rayConfig.Api.Tag, cfg.V2rayConfig.InboundConfigs)
 			gRPCAddr := fmt.Sprintf("%s:%d", apiInbound.ListenOn.String(), apiInbound.PortRange.From)
 			gRPCConn, err := client.ConnectGRPC(gRPCAddr, 10*time.Second)
@@ -101,13 +102,13 @@ func run() error {
 			newErrorf("Connected gRPC server \"%s\" ", gRPCAddr).AtWarning().WriteToLog()
 			var database db.Db
 			if cfg.Paneltype == 0 {
-				if cfg.MySQL != nil {
+				if ok {
 					mysql, err := db.NewMySQLConn(cfg.MySQL)
 					if err != nil {
 						fmt.Println(err)
 					}
 					database = &db.SSpanel{Db: mysql}
-				} else {
+				} else if ok1 {
 					database = &db.Webapi{
 						WebToken:   cfg.PanelKey,
 						WebBaseURl: cfg.PanelUrl,
@@ -121,7 +122,7 @@ func run() error {
 					}
 					database = &db.SSRpanel{Db: mysql}
 				} else {
-					fatal("No databese configed")
+					fatal("No databese config for ssrpanel")
 				}
 			}
 
@@ -131,7 +132,12 @@ func run() error {
 			}
 			p.Start()
 		} else {
-			fatal(err)
+			if err != nil {
+				fatal(err)
+			}
+			if err1 != nil {
+				fatal(err1)
+			}
 		}
 
 	}()

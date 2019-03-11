@@ -27,7 +27,7 @@ func (api *SSRpanel) GetNodeInfo(nodeid uint) (*NodeinfoResponse, error) {
 	node := SSRNode{}
 	err := api.Db.First(&node, nodeid).Error
 	if err != nil {
-		return nil, newError("can't find node info").Base(err)
+		return nil, newError("nodeinfo not find,please check your nodeid or mysql setting").Base(err)
 	}
 
 	response.Ret = 1

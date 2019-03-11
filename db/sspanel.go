@@ -26,7 +26,7 @@ func (api *SSpanel) GetNodeInfo(nodeid uint) (*NodeinfoResponse, error) {
 	var nodeinfotable SSNode
 	err := api.Db.First(&nodeinfotable, "id = ?", nodeid).Error
 	if err != nil {
-		return nil, err
+		return nil, newError("nodeinfo not find,please check your nodeid or mysql setting").Base(err)
 	}
 	response.Ret = 1
 	response.Data.Server_raw = nodeinfotable.Server
@@ -76,7 +76,7 @@ func (api *SSpanel) GetDisNodeInfo(nodeid uint) (*DisNodenfoResponse, error) {
 
 	err := api.Db.Find(&rules, "source_node_id =?", nodeid).Error
 	if err != nil {
-		return nil, err
+		return nil, newError("no relay rule ,please check your nodeid or mysql setting").Base(err)
 	}
 	response.Ret = 1
 	for index := range rules {
