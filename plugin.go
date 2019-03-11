@@ -77,7 +77,7 @@ func run() error {
 		var ok bool
 		var err error
 		if cfg.MySQL != nil {
-			ok, err = checkAuth(cfg.MySQL.Host)
+			ok, err = true, nil
 		} else {
 			ok, err = checkAuth(cfg.PanelUrl)
 		}
@@ -113,7 +113,7 @@ func run() error {
 					if err != nil {
 						fmt.Println(err)
 					}
-					database = &db.SSpanel{Db: mysql}
+					database = &db.SSRpanel{Db: mysql}
 				} else {
 					fatal("No databese configed")
 				}

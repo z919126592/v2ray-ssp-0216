@@ -45,8 +45,8 @@ func (api *SSRpanel) GetNodeInfo(nodeid uint) (*NodeinfoResponse, error) {
 	response.Data.NodeID = node.ID
 	response.Data.Server = map[string]interface{}{
 		"server_address": node.Ip,
-		"port":           node.V2Port,
-		"alterid":        node.V2AlterId,
+		"port":           fmt.Sprintf("%d", node.V2Port),
+		"alterid":        fmt.Sprintf("%d", node.V2AlterId),
 		"protocol":       node.V2Type,
 		"protocol_param": node.V2Net,
 		"path":           node.V2Path,
