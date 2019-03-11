@@ -186,7 +186,7 @@ func (api *Webapi) GetALLUsers(info *model.NodeInfo) (*AllUsers, error) {
 		}
 		// 接受到的是 Mbps， 然后我们的一个buffer 是2048byte， 差不多61个
 		response.Data[index].Rate = uint32(response.Data[index].NodeSpeedlimit * 62)
-		if info.Server["alterid"] == "" {
+		if info.Server["alterid"].(string) == "" {
 			response.Data[index].AlterId = 16
 		} else {
 			alterid, err := strconv.ParseUint(info.Server["alterid"].(string), 10, 0)

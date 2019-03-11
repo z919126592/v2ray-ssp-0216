@@ -125,7 +125,14 @@ func (api *SSRpanel) GetALLUsers(info *model.NodeInfo) (*AllUsers, error) {
 		// 接受到的是 Mbps， 然后我们的一个buffer 是2048byte， 差不多61个
 		response.Data[index].Rate = uint32(response.Data[index].NodeSpeedlimit * 62)
 
-		response.Data[index].AlterId = uint32(info.Server["alterid"].(uint))
+		if info.Server["alterid"].(string) == "" {
+			response.Data[index].AlterId = 16
+		} else {
+			alterid, err := strconv.ParseUint(info.Server["alterid"].(string), 10, 0)
+			if err == nil {
+				response.Data[index].AlterId = uint32(alterid)
+			}
+		}
 
 		key := prifix + response.Data[index].Email + fmt.Sprintf("Rate_%d_AlterID_%d_Method_%s_Passwd_%s_Port_%d", response.Data[index].Rate,
 			response.Data[index].AlterId, response.Data[index].Method, response.Data[index].Passwd, response.Data[index].Port,
