@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/rico93/v2ray-sspanel-v3-mod_Uim-plugin/client"
 	"github.com/rico93/v2ray-sspanel-v3-mod_Uim-plugin/config"
-	"github.com/rico93/v2ray-sspanel-v3-mod_Uim-plugin/webapi"
+	"github.com/rico93/v2ray-sspanel-v3-mod_Uim-plugin/db"
 	"google.golang.org/grpc/status"
 	"os"
 	"runtime"
@@ -22,7 +22,7 @@ func init() {
 		}
 	}()
 }
-func checkAuth(panelurl string, db *webapi.Webapi) (bool, error) {
+func checkAuth(panelurl string, db *db.Webapi) (bool, error) {
 	md5Ctx := md5.New()
 	md5Ctx.Write([]byte(panelurl))
 	cipherStr := md5Ctx.Sum(nil)
@@ -52,7 +52,7 @@ func run() error {
 
 	// wait v2ray
 	time.Sleep(3 * time.Second)
-	db := &webapi.Webapi{
+	db := &db.Webapi{
 		WebToken:   cfg.PanelKey,
 		WebBaseURl: cfg.PanelUrl,
 	}

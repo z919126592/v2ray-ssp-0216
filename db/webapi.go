@@ -1,4 +1,4 @@
-package webapi
+package db
 
 import (
 	"fmt"
@@ -12,57 +12,9 @@ import (
 	"time"
 )
 
-type NodeinfoResponse struct {
-	Ret  uint            `json:"ret"`
-	Data *model.NodeInfo `json:"data"`
-}
-type PostResponse struct {
-	Ret  uint   `json:"ret"`
-	Data string `json:"data"`
-}
-type UsersResponse struct {
-	Ret  uint              `json:"ret"`
-	Data []model.UserModel `json:"data"`
-}
-type AllUsers struct {
-	Ret  uint
-	Data map[string]model.UserModel
-}
 type Webapi struct {
 	WebToken   string
 	WebBaseURl string
-}
-
-type DisNodenfoResponse struct {
-	Ret  uint                 `json:"ret"`
-	Data []*model.DisNodeInfo `json:"data"`
-}
-type AuthResponse struct {
-	Ret   uint   `json:"ret"`
-	Token string `json:"token"`
-}
-
-var id2string = map[uint]string{
-	0: "server_address",
-	1: "port",
-	2: "alterid",
-	3: "protocol",
-	4: "protocol_param",
-	5: "path",
-	6: "host",
-	7: "inside_port",
-	8: "server",
-}
-var maps = map[string]interface{}{
-	"server_address": "",
-	"port":           "",
-	"alterid":        "16",
-	"protocol":       "tcp",
-	"protocol_param": "",
-	"path":           "",
-	"host":           "",
-	"inside_port":    "",
-	"server":         "",
 }
 
 func (api *Webapi) GetApi(url string, params map[string]interface{}) (*req.Resp, error) {

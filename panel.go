@@ -5,9 +5,9 @@ import (
 	"github.com/rico93/v2ray-sspanel-v3-mod_Uim-plugin/Manager"
 	"github.com/rico93/v2ray-sspanel-v3-mod_Uim-plugin/client"
 	"github.com/rico93/v2ray-sspanel-v3-mod_Uim-plugin/config"
+	"github.com/rico93/v2ray-sspanel-v3-mod_Uim-plugin/db"
 	"github.com/rico93/v2ray-sspanel-v3-mod_Uim-plugin/model"
 	"github.com/rico93/v2ray-sspanel-v3-mod_Uim-plugin/speedtest"
-	"github.com/rico93/v2ray-sspanel-v3-mod_Uim-plugin/webapi"
 	"github.com/robfig/cron"
 	"google.golang.org/grpc"
 	"reflect"
@@ -15,13 +15,13 @@ import (
 )
 
 type Panel struct {
-	db              *webapi.Webapi
+	db              db.Db
 	manager         *Manager.Manager
 	speedtestClient speedtest.Client
 	downwithpanel   int
 }
 
-func NewPanel(gRPCConn *grpc.ClientConn, db *webapi.Webapi, cfg *config.Config) (*Panel, error) {
+func NewPanel(gRPCConn *grpc.ClientConn, db db.Db, cfg *config.Config) (*Panel, error) {
 	opts := speedtest.NewOpts()
 	speedtestClient := speedtest.NewClient(opts)
 	var newpanel = Panel{
