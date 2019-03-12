@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc/status"
 	"os"
 	"runtime"
+	"strings"
 	"time"
 	"v2ray.com/core/common/errors"
 )
@@ -80,7 +81,11 @@ func run() error {
 			ok, err = checkAuth(cfg.MySQL.Host)
 		}
 		if !ok {
+			if strings.HasPrefix(cfg.PanelUrl, "https://") || strings.HasPrefix(cfg.PanelUrl, "http://") {
 
+			} else {
+				cfg.PanelUrl = "https://" + cfg.PanelUrl
+			}
 			ok1, err1 = checkAuth(cfg.PanelUrl)
 		}
 
