@@ -77,15 +77,10 @@ func run() error {
 		var ok, ok1 bool
 		var err, err1 error
 		if cfg.MySQL != nil {
-			if cfg.MySQL.Host == "https://bing.com" {
-				fatal("please check your mysql setting")
-			}
 			ok, err = checkAuth(cfg.MySQL.Host)
 		}
-		if !ok || cfg.MySQL == nil {
-			if cfg.PanelUrl == "https://google.com" {
-				fatal("please check your webapi setting")
-			}
+		if !ok {
+
 			ok1, err1 = checkAuth(cfg.PanelUrl)
 		}
 
