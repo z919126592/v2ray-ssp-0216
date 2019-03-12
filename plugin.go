@@ -56,7 +56,6 @@ func checkAuth(panelurl string) (bool, error) {
 		} else {
 			return false, newErrorf("Auth failed, current url: %s  current md5", panelurl, current_md5)
 		}
-		f
 	} else {
 		return false, newErrorf("Can't get data from server or the  data is not as expected")
 	}
