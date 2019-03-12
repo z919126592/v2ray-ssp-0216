@@ -77,7 +77,7 @@ func (p *Panel) Start() {
 		fatal(err)
 	}
 	if p.manager.SpeedTestCheckRate > 0 {
-		newErrorf("@every %dh", p.manager.SpeedTestCheckRate).AtInfo().WriteToLog()
+		newErrorf("SpeedTest @every %dh", p.manager.SpeedTestCheckRate).AtInfo().WriteToLog()
 		err = c.AddFunc(fmt.Sprintf("@every %dh", p.manager.SpeedTestCheckRate), speedTestFunc)
 		if err != nil {
 			newError("Can't add speed test into cron").AtWarning().WriteToLog()
@@ -112,14 +112,14 @@ func (p *Panel) initial() {
 func (p *Panel) updateManager() bool {
 	newNodeinfo, err := p.db.GetNodeInfo(p.manager.NodeID)
 	if err != nil {
-		newError(err).AtWarning().WriteToLog()
+		newError("Can't get nodeinfo").Base(err).AtWarning().WriteToLog()
 		if p.downwithpanel == 1 {
 			p.initial()
 		}
 		return false
 	}
 	if newNodeinfo.Ret != 1 {
-		newError(newNodeinfo.Data).AtWarning().WriteToLog()
+		newError("please check your setting nodata finded").AtWarning().WriteToLog()
 		if p.downwithpanel == 1 {
 			p.initial()
 		}

@@ -102,25 +102,30 @@ func run() error {
 			newErrorf("Connected gRPC server \"%s\" ", gRPCAddr).AtWarning().WriteToLog()
 			var database db.Db
 			if cfg.Paneltype == 0 {
+				newError("USING SSpanel").AtInfo().WriteToLog()
 				if ok {
 					mysql, err := db.NewMySQLConn(cfg.MySQL)
 					if err != nil {
 						fmt.Println(err)
 					}
 					database = &db.SSpanel{Db: mysql}
+					newError("USING Mysql Now").AtInfo().WriteToLog()
 				} else if ok1 {
 					database = &db.Webapi{
 						WebToken:   cfg.PanelKey,
 						WebBaseURl: cfg.PanelUrl,
 					}
+					newError("USING Webapi Now").AtInfo().WriteToLog()
 				}
 			} else {
+				newError("USING SSRpanel").AtInfo().WriteToLog()
 				if cfg.MySQL != nil {
 					mysql, err := db.NewMySQLConn(cfg.MySQL)
 					if err != nil {
 						fmt.Println(err)
 					}
 					database = &db.SSRpanel{Db: mysql}
+					newError("USING Mysql Now").AtInfo().WriteToLog()
 				} else {
 					fatal("No databese config for ssrpanel")
 				}
