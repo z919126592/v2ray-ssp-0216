@@ -73,6 +73,7 @@ type Config struct {
 	DownWithPanel      int          `json:"downWithPanel"`
 	MySQL              *MySQLConfig `json:"mysql"`
 	Paneltype          int          `json:"paneltype"`
+	Usemysql           int          `json:"usemysql"`
 	V2rayConfig        *conf.Config
 }
 

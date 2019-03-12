@@ -75,21 +75,23 @@ func run() error {
 	time.Sleep(3 * time.Second)
 
 	go func() {
-		var ok, ok1 bool
-		var err, err1 error
-		if cfg.MySQL != nil {
-			ok, err = checkAuth(cfg.MySQL.Host)
-		}
-		if !ok {
+		var ok bool
+		var err error
+		if cfg.Usemysql == 0 {
 			if strings.HasPrefix(cfg.PanelUrl, "https://") || strings.HasPrefix(cfg.PanelUrl, "http://") {
 
 			} else {
 				cfg.PanelUrl = "https://" + cfg.PanelUrl
 			}
-			ok1, err1 = checkAuth(cfg.PanelUrl)
+			ok, err = checkAuth(cfg.PanelUrl)
+		} else {
+			if cfg.MySQL != nil {
+				ok, err = checkAuth(cfg.MySQL.Host)
+			} else {
+				fatal("Please Add Mysql setting")
+			}
 		}
-
-		if (ok && err == nil) || (ok1 && err1 == nil) {
+		if ok && err == nil {
 			apiInbound := config.GetInboundConfigByTag(cfg.V2rayConfig.Api.Tag, cfg.V2rayConfig.InboundConfigs)
 			gRPCAddr := fmt.Sprintf("%s:%d", apiInbound.ListenOn.String(), apiInbound.PortRange.From)
 			gRPCConn, err := client.ConnectGRPC(gRPCAddr, 10*time.Second)
@@ -102,30 +104,30 @@ func run() error {
 			newErrorf("Connected gRPC server \"%s\" ", gRPCAddr).AtWarning().WriteToLog()
 			var database db.Db
 			if cfg.Paneltype == 0 {
-				newError("USING SSpanel").AtInfo().WriteToLog()
-				if ok {
+				newError("Using SSpanel").AtInfo().WriteToLog()
+				if cfg.Usemysql == 1 {
 					mysql, err := db.NewMySQLConn(cfg.MySQL)
 					if err != nil {
 						fmt.Println(err)
 					}
 					database = &db.SSpanel{Db: mysql}
-					newError("USING Mysql Now").AtInfo().WriteToLog()
-				} else if ok1 {
+					newError("Using Mysql Now").AtInfo().WriteToLog()
+				} else {
 					database = &db.Webapi{
 						WebToken:   cfg.PanelKey,
 						WebBaseURl: cfg.PanelUrl,
 					}
-					newError("USING Webapi Now").AtInfo().WriteToLog()
+					newError("Using Webapi Now").AtInfo().WriteToLog()
 				}
 			} else {
-				newError("USING SSRpanel").AtInfo().WriteToLog()
-				if cfg.MySQL != nil {
+				newError("Using SSRpanel").AtInfo().WriteToLog()
+				if cfg.Usemysql == 1 {
 					mysql, err := db.NewMySQLConn(cfg.MySQL)
 					if err != nil {
 						fmt.Println(err)
 					}
 					database = &db.SSRpanel{Db: mysql}
-					newError("USING Mysql Now").AtInfo().WriteToLog()
+					newError("Using Mysql Now").AtInfo().WriteToLog()
 				} else {
 					fatal("No databese config for ssrpanel")
 				}
@@ -139,9 +141,6 @@ func run() error {
 		} else {
 			if err != nil {
 				fatal(err)
-			}
-			if err1 != nil {
-				fatal(err1)
 			}
 		}
 
