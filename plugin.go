@@ -54,11 +54,11 @@ func checkAuth(panelurl string) (bool, error) {
 			auth := config.AESDecodeStr(re.Token, config.Key)
 			return current_md5 == auth, nil
 		} else {
-			return false, newError("Auth failed or can't connect to the server")
+			return false, newErrorf("Auth failed, current url: %s  current md5", panelurl, current_md5)
 		}
-
+		f
 	} else {
-		return false, newError("Auth failed or can't connect to the server")
+		return false, newErrorf("Can't get data from server or the  data is not as expected")
 	}
 
 }
