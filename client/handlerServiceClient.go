@@ -14,12 +14,15 @@ import (
 	"v2ray.com/core/common/protocol"
 	"v2ray.com/core/common/serial"
 	"v2ray.com/core/common/uuid"
+	"v2ray.com/core/proxy/dokodemo"
+	"v2ray.com/core/proxy/freedom"
 	"v2ray.com/core/proxy/mtproto"
 	"v2ray.com/core/proxy/shadowsocks"
 	"v2ray.com/core/proxy/vmess"
 	"v2ray.com/core/proxy/vmess/inbound"
 	"v2ray.com/core/proxy/vmess/outbound"
 	"v2ray.com/core/transport/internet"
+	"v2ray.com/core/transport/internet/domainsocket"
 	"v2ray.com/core/transport/internet/headers/noop"
 	"v2ray.com/core/transport/internet/headers/srtp"
 	"v2ray.com/core/transport/internet/headers/tls"
@@ -127,6 +130,22 @@ func GetWebSocketStreamConfig(path string, host string) *internet.StreamConfig {
 	return &streamsetting
 }
 
+func GetDomainsocketStreamConfig(filepath string) *internet.StreamConfig {
+	var streamsetting internet.StreamConfig
+	streamsetting = internet.StreamConfig{
+		ProtocolName: "domainsocket",
+		TransportSettings: []*internet.TransportConfig{
+			&internet.TransportConfig{
+				ProtocolName: "domainsocket",
+				Settings: serial.ToTypedMessage(&domainsocket.Config{
+					Path: filepath,
+				}),
+			},
+		},
+	}
+	return &streamsetting
+}
+
 // different type inbounds
 func (h *HandlerServiceClient) AddVmessInbound(port uint16, address string, streamsetting *internet.StreamConfig) error {
 	var addinboundrequest command.AddInboundRequest
@@ -225,14 +244,15 @@ func (h *HandlerServiceClient) AddMTInbound(port uint16, address string, streams
 	}
 	return h.AddInbound(&addinboundrequest)
 }
-func (h *HandlerServiceClient) AddSSInbound(user model.UserModel) error {
+func (h *HandlerServiceClient) AddSSInbound(user model.UserModel, address string, streamsetting *internet.StreamConfig) error {
 	var addinboundrequest command.AddInboundRequest
 	addinboundrequest = command.AddInboundRequest{
 		Inbound: &core.InboundHandlerConfig{
 			Tag: user.PrefixedId,
 			ReceiverSettings: serial.ToTypedMessage(&proxyman.ReceiverConfig{
-				PortRange: net.SinglePortRange(net.Port(user.Port)),
-				Listen:    net.NewIPOrDomain(net.ParseAddress("0.0.0.0")),
+				PortRange:      net.SinglePortRange(net.Port(user.Port)),
+				Listen:         net.NewIPOrDomain(net.ParseAddress(address)),
+				StreamSettings: streamsetting,
 			}),
 			ProxySettings: serial.ToTypedMessage(&shadowsocks.ServerConfig{
 				User:    h.ConverSSUser(user),
@@ -242,6 +262,40 @@ func (h *HandlerServiceClient) AddSSInbound(user model.UserModel) error {
 	}
 	return h.AddInbound(&addinboundrequest)
 }
+
+func (h *HandlerServiceClient) AddDokodemoInbound(port uint16, address string, streamsetting *internet.StreamConfig) error {
+	var addinboundrequest command.AddInboundRequest
+	addinboundrequest = command.AddInboundRequest{
+		Inbound: &core.InboundHandlerConfig{
+			Tag: h.InboundTag,
+			ReceiverSettings: serial.ToTypedMessage(&proxyman.ReceiverConfig{
+				PortRange:      net.SinglePortRange(net.Port(port)),
+				Listen:         net.NewIPOrDomain(net.ParseAddress(address)),
+				StreamSettings: streamsetting,
+			}),
+			ProxySettings: serial.ToTypedMessage(&dokodemo.Config{
+				Address:        net.NewIPOrDomain(net.ParseAddress("rico93.xxxx")),
+				Networks:       []net.Network{net.Network_TCP, net.Network_TCP},
+				FollowRedirect: false,
+			}),
+		},
+	}
+	return h.AddInbound(&addinboundrequest)
+}
+func (h *HandlerServiceClient) AddDokodemoOutbound(tag string, port uint16, address string, streamsetting *internet.StreamConfig, user *protocol.User) error {
+	var addoutboundrequest command.AddOutboundRequest
+	addoutboundrequest = command.AddOutboundRequest{
+		Outbound: &core.OutboundHandlerConfig{
+			Tag: tag,
+			SenderSettings: serial.ToTypedMessage(&proxyman.SenderConfig{
+				StreamSettings: streamsetting,
+			}),
+			ProxySettings: serial.ToTypedMessage(&freedom.Config{}),
+		},
+	}
+	return h.AddOutbound(&addoutboundrequest)
+}
+
 func (h *HandlerServiceClient) AddInbound(req *command.AddInboundRequest) error {
 	_, err := h.HandlerServiceClient.AddInbound(context.Background(), req)
 	return err

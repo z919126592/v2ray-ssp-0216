@@ -13,7 +13,7 @@ import (
 type Manager struct {
 	HandlerServiceClient  *client.HandlerServiceClient
 	StatsServiceClient    *client.StatsServiceClient
-	UserRuleServiceClient *client.UserRuleServerClient
+	UserRuleServiceClient *client.RuleServerClient
 	CurrentNodeInfo       *model.NodeInfo
 	NextNodeInfo          *model.NodeInfo
 	UserChanged           bool
@@ -83,7 +83,7 @@ func (manager *Manager) UpdataUsers() {
 			// SS server
 			/// add inbounds
 			for key, value := range manager.UserToBeAdd {
-				if err := manager.HandlerServiceClient.AddSSInbound(value); err == nil {
+				if err := manager.HandlerServiceClient.AddSSInbound(value, "0.0.0.0", nil); err == nil {
 					newErrorf("Successfully add user %s ", key).AtInfo().WriteToLog()
 					successfully_add = append(successfully_add, key)
 				} else {

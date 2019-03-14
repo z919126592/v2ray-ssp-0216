@@ -31,7 +31,7 @@ func NewPanel(gRPCConn *grpc.ClientConn, db db.Db, cfg *config.Config) (*Panel, 
 		manager: &Manager.Manager{
 			HandlerServiceClient:  client.NewHandlerServiceClient(gRPCConn, "MAIN_INBOUND"),
 			StatsServiceClient:    client.NewStatsServiceClient(gRPCConn),
-			UserRuleServiceClient: client.NewUserRuleServerClient(gRPCConn),
+			UserRuleServiceClient: client.NewRuleServerClient(gRPCConn),
 			NodeID:                cfg.NodeID,
 			CheckRate:             cfg.CheckRate,
 			SpeedTestCheckRate:    cfg.SpeedTestCheckRate,
