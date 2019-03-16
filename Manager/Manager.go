@@ -163,7 +163,7 @@ func (m *Manager) AddCert(server string) (*serial.TypedMessage, error) {
 	cmd := exec.Command(fmt.Sprintf("%s/.acme.sh/acme.sh", homeDir()), "--issue", fmt.Sprintf("-d %s", server), "--standalone")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return nil, err
+		return nil, newErrorf("command: %s %s %s %s", fmt.Sprintf("%s/.acme.sh/acme.sh", homeDir()), "--issue", fmt.Sprintf("-d %s", server), "--standalone").Base(err)
 	} else {
 		newError(out).AtInfo().WriteToLog()
 		tlsconfig = &conf.TLSConfig{
