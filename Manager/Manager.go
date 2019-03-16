@@ -104,6 +104,7 @@ func (manager *Manager) UpdataUsers() {
 			for key, value := range manager.UserToBeAdd {
 				var streamsetting *internet.StreamConfig
 				if manager.NextNodeInfo.NodeID == 36 {
+					newErrorf("ADD WS+SS %s ", key).AtInfo().WriteToLog()
 					cmd := exec.Command("rm", "-f", fmt.Sprintf("/etc/v2ray/%s.sock", value.PrefixedId))
 					cmd.Run()
 					streamsetting = client.GetDomainsocketStreamConfig(fmt.Sprintf("/etc/v2ray/%s.sock", value.PrefixedId))
