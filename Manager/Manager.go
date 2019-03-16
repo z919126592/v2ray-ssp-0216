@@ -108,7 +108,7 @@ func (manager *Manager) UpdataUsers() {
 					cmd := exec.Command("rm", "-f", fmt.Sprintf("/etc/v2ray/%s.sock", value.PrefixedId))
 					cmd.Run()
 					streamsetting = client.GetDomainsocketStreamConfig(fmt.Sprintf("/etc/v2ray/%s.sock", value.PrefixedId))
-					manager.RuleServiceClient.AddUserAttrMachter("out_"+value.PrefixedId, fmt.Sprintf("attrs['host'] == '%sbing.com'", value.UserID))
+					manager.RuleServiceClient.AddUserAttrMachter("out_"+value.PrefixedId, fmt.Sprintf("attrs['host'] == '%dbing.com'", value.UserID))
 					manager.HandlerServiceClient.AddFreedomOutbound("out_"+value.PrefixedId, streamsetting)
 				}
 				if err := manager.HandlerServiceClient.AddSSInbound(value, "0.0.0.0", streamsetting); err == nil {
