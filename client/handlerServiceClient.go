@@ -110,24 +110,44 @@ func GetKcpStreamConfig(headkey string) *internet.StreamConfig {
 
 func GetWebSocketStreamConfig(path string, host string, tm *serial.TypedMessage) *internet.StreamConfig {
 	var streamsetting internet.StreamConfig
-	streamsetting = internet.StreamConfig{
-		ProtocolName: "websocket",
-		TransportSettings: []*internet.TransportConfig{
-			&internet.TransportConfig{
-				ProtocolName: "websocket",
-				Settings: serial.ToTypedMessage(&websocket.Config{
-					Path: path,
-					Header: []*websocket.Header{
-						&websocket.Header{
-							Key:   "Hosts",
-							Value: host,
+	if tm == nil {
+		streamsetting = internet.StreamConfig{
+			ProtocolName: "websocket",
+			TransportSettings: []*internet.TransportConfig{
+				&internet.TransportConfig{
+					ProtocolName: "websocket",
+					Settings: serial.ToTypedMessage(&websocket.Config{
+						Path: path,
+						Header: []*websocket.Header{
+							&websocket.Header{
+								Key:   "Hosts",
+								Value: host,
+							},
 						},
-					},
-				}),
+					}),
+				},
 			},
-		},
-		SecuritySettings: []*serial.TypedMessage{tm},
-		SecurityType:     tm.Type,
+		}
+	} else {
+		streamsetting = internet.StreamConfig{
+			ProtocolName: "websocket",
+			TransportSettings: []*internet.TransportConfig{
+				&internet.TransportConfig{
+					ProtocolName: "websocket",
+					Settings: serial.ToTypedMessage(&websocket.Config{
+						Path: path,
+						Header: []*websocket.Header{
+							&websocket.Header{
+								Key:   "Hosts",
+								Value: host,
+							},
+						},
+					}),
+				},
+			},
+			SecuritySettings: []*serial.TypedMessage{tm},
+			SecurityType:     tm.Type,
+		}
 	}
 	return &streamsetting
 }
