@@ -225,14 +225,14 @@ func (m *Manager) AddMainInbound() error {
 						if err != nil {
 							newError("Can't get cert for server").Base(err).AtWarning().WriteToLog()
 						} else {
-
+							newErrorf("Successfully get cert for %s ", m.NextNodeInfo.Server["server"].(string)).AtInfo().WriteToLog()
 						}
 					} else if net.ParseAddress(m.NextNodeInfo.Server["server_address"].(string)).Family() == net.AddressFamilyDomain {
 						tm, err = m.AddCert(m.NextNodeInfo.Server["server_address"].(string))
 						if err != nil {
 							newError("Can't get cert for server_address").Base(err).AtWarning().WriteToLog()
 						} else {
-
+							newErrorf("Successfully get cert for %s ", m.NextNodeInfo.Server["server_address"].(string)).AtInfo().WriteToLog()
 						}
 					}
 				}
