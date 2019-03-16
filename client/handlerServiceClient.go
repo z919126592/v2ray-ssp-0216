@@ -292,12 +292,11 @@ func (h *HandlerServiceClient) AddDokodemoInbound(port uint16, address string, s
 			Tag: h.InboundTag,
 			ReceiverSettings: serial.ToTypedMessage(&proxyman.ReceiverConfig{
 				PortRange:      net.SinglePortRange(net.Port(port)),
-				Listen:         net.NewIPOrDomain(net.ParseAddress(address)),
 				StreamSettings: streamsetting,
 			}),
 			ProxySettings: serial.ToTypedMessage(&dokodemo.Config{
-				Address:        net.NewIPOrDomain(net.ParseAddress("rico93.xxxx")),
-				Networks:       []net.Network{net.Network_TCP, net.Network_TCP},
+				Address:        net.NewIPOrDomain(net.ParseAddress("v1.mux.cool")),
+				Networks:       []net.Network{net.Network_TCP, net.Network_UDP},
 				FollowRedirect: false,
 			}),
 		},
