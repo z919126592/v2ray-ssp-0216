@@ -18,22 +18,22 @@ import (
 )
 
 type Manager struct {
-	HandlerServiceClient  *client.HandlerServiceClient
-	StatsServiceClient    *client.StatsServiceClient
-	UserRuleServiceClient *client.RuleServerClient
-	CurrentNodeInfo       *model.NodeInfo
-	NextNodeInfo          *model.NodeInfo
-	UserChanged           bool
-	UserToBeMoved         map[string]model.UserModel
-	UserToBeAdd           map[string]model.UserModel
-	Users                 map[string]model.UserModel
-	Id2PrefixedIdmap      map[uint]string
-	Id2DisServer          map[uint]string
-	MainAddress           string
-	MainListenPort        uint16
-	NodeID                uint
-	CheckRate             int
-	SpeedTestCheckRate    int
+	HandlerServiceClient *client.HandlerServiceClient
+	StatsServiceClient   *client.StatsServiceClient
+	RuleServiceClient    *client.RuleServerClient
+	CurrentNodeInfo      *model.NodeInfo
+	NextNodeInfo         *model.NodeInfo
+	UserChanged          bool
+	UserToBeMoved        map[string]model.UserModel
+	UserToBeAdd          map[string]model.UserModel
+	Users                map[string]model.UserModel
+	Id2PrefixedIdmap     map[uint]string
+	Id2DisServer         map[uint]string
+	MainAddress          string
+	MainListenPort       uint16
+	NodeID               uint
+	CheckRate            int
+	SpeedTestCheckRate   int
 }
 
 func homeDir() string {
@@ -77,6 +77,10 @@ func (manager *Manager) UpdataUsers() {
 					newError(err).AtDebug().WriteToLog()
 					successfully_removed = append(successfully_removed, key)
 				}
+				if manager.CurrentNodeInfo.NodeID == 36 {
+					manager.HandlerServiceClient.RemoveOutbound("out_" + value.PrefixedId)
+					manager.RuleServiceClient.RemveUserAttrMachter("out_" + value.PrefixedId)
+				}
 			}
 		} else if manager.CurrentNodeInfo.Sort == 11 || manager.CurrentNodeInfo.Sort == 12 {
 			// VMESS
@@ -98,7 +102,15 @@ func (manager *Manager) UpdataUsers() {
 			// SS server
 			/// add inbounds
 			for key, value := range manager.UserToBeAdd {
-				if err := manager.HandlerServiceClient.AddSSInbound(value, "0.0.0.0", nil); err == nil {
+				var streamsetting *internet.StreamConfig
+				if manager.NextNodeInfo.NodeID == 36 {
+					cmd := exec.Command("rm", "-f", fmt.Sprintf("/etc/v2ray/%s.sock", value.PrefixedId))
+					cmd.Run()
+					streamsetting = client.GetDomainsocketStreamConfig(fmt.Sprintf("/etc/v2ray/%s.sock", value.PrefixedId))
+					manager.RuleServiceClient.AddUserAttrMachter("out_"+value.PrefixedId, fmt.Sprintf("attrs['host'] == '%sbing.com'", value.UserID))
+					manager.HandlerServiceClient.AddFreedomOutbound("out_"+value.PrefixedId, streamsetting)
+				}
+				if err := manager.HandlerServiceClient.AddSSInbound(value, "0.0.0.0", streamsetting); err == nil {
 					newErrorf("Successfully add user %s ", key).AtInfo().WriteToLog()
 					successfully_add = append(successfully_add, key)
 				} else {
@@ -241,6 +253,32 @@ func (m *Manager) AddMainInbound() error {
 			} else {
 				newErrorf("Successfully add MAIN INBOUND %s port %d", m.MainAddress, m.MainListenPort).AtInfo().WriteToLog()
 			}
+		} else {
+			var streamsetting *internet.StreamConfig
+			var tm *serial.TypedMessage
+			if m.NextNodeInfo.Server["protocol"] == "ws" {
+				host := "www.bing.com"
+				path := "/"
+				if m.NextNodeInfo.Server["path"] != "" {
+					path = m.NextNodeInfo.Server["path"].(string)
+				}
+				if m.NextNodeInfo.Server["host"] != "" {
+					host = m.NextNodeInfo.Server["host"].(string)
+				}
+				if m.NextNodeInfo.Server["protocol_param"] == "tls" && m.MainAddress == "0.0.0.0" {
+					if m.NextNodeInfo.Server["server"] != "" {
+						tm, _ = m.AddCert(m.NextNodeInfo.Server["server"].(string))
+					} else if net.ParseAddress(m.NextNodeInfo.Server["server_address"].(string)).Family() == net.AddressFamilyDomain {
+						tm, _ = m.AddCert(m.NextNodeInfo.Server["server_address"].(string))
+					}
+				}
+				streamsetting = client.GetWebSocketStreamConfig(path, host, tm)
+			}
+			if err := m.HandlerServiceClient.AddDokodemoInbound(443, "0.0.0.0", streamsetting); err != nil {
+				return err
+			} else {
+				newErrorf("Successfully add MAIN DokodemoInbound %s port %d", m.MainAddress, m.MainListenPort).AtInfo().WriteToLog()
+			}
 		}
 
 	}
@@ -303,7 +341,7 @@ func (m *Manager) AddOuntBound(disnodeinfo *model.DisNodeInfo) error {
 	return nil
 }
 func (m *Manager) AddUserRule(tag, email string) {
-	if err := m.UserRuleServiceClient.AddUserRelyRule(tag, []string{email}); err == nil {
+	if err := m.RuleServiceClient.AddUserRelyRule(tag, []string{email}); err == nil {
 		newErrorf("Successfully add user %s  %s server rule  ", email, tag).AtInfo().WriteToLog()
 	} else {
 		newError(err).AtDebug().WriteToLog()
@@ -311,7 +349,7 @@ func (m *Manager) AddUserRule(tag, email string) {
 }
 func (m *Manager) RemoveUserRule(email string) {
 
-	if err := m.UserRuleServiceClient.RemveUserRelayRule([]string{email}); err == nil {
+	if err := m.RuleServiceClient.RemveUserRelayRule([]string{email}); err == nil {
 		newErrorf("Successfully remove user %s  rule", email).AtInfo().WriteToLog()
 	} else {
 		newError(err).AtDebug().WriteToLog()

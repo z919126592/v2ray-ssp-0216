@@ -152,7 +152,7 @@ func GetWebSocketStreamConfig(path string, host string, tm *serial.TypedMessage)
 	return &streamsetting
 }
 
-func GetDomainsocketStreamConfig(filepath string, tm *serial.TypedMessage) *internet.StreamConfig {
+func GetDomainsocketStreamConfig(filepath string) *internet.StreamConfig {
 	var streamsetting internet.StreamConfig
 	streamsetting = internet.StreamConfig{
 		ProtocolName: "domainsocket",
@@ -164,8 +164,6 @@ func GetDomainsocketStreamConfig(filepath string, tm *serial.TypedMessage) *inte
 				}),
 			},
 		},
-		SecurityType:     tm.Type,
-		SecuritySettings: []*serial.TypedMessage{tm},
 	}
 	return &streamsetting
 }
@@ -306,7 +304,7 @@ func (h *HandlerServiceClient) AddDokodemoInbound(port uint16, address string, s
 	}
 	return h.AddInbound(&addinboundrequest)
 }
-func (h *HandlerServiceClient) AddFreedomOutbound(tag string, port uint16, address string, streamsetting *internet.StreamConfig, user *protocol.User) error {
+func (h *HandlerServiceClient) AddFreedomOutbound(tag string, streamsetting *internet.StreamConfig) error {
 	var addoutboundrequest command.AddOutboundRequest
 	addoutboundrequest = command.AddOutboundRequest{
 		Outbound: &core.OutboundHandlerConfig{
