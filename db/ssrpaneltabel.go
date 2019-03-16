@@ -86,6 +86,7 @@ type SSRNode struct {
 	Bandwidth        uint
 	Ip               string
 	V2rayInsiderPort string
+	Server           string
 }
 
 func (*SSRNode) TableName() string {

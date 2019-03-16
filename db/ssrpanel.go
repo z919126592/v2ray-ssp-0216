@@ -44,7 +44,7 @@ func (api *SSRpanel) GetNodeInfo(nodeid uint) (*NodeinfoResponse, error) {
 	response.Data.TrafficRate = node.TrafficRate
 	response.Data.NodeID = node.ID
 	response.Data.Server = map[string]interface{}{
-		"server_address": node.Ip,
+		"server_address": node.Server,
 		"port":           fmt.Sprintf("%d", node.V2Port),
 		"alterid":        fmt.Sprintf("%d", node.V2AlterId),
 		"protocol":       node.V2Type,
@@ -52,7 +52,7 @@ func (api *SSRpanel) GetNodeInfo(nodeid uint) (*NodeinfoResponse, error) {
 		"path":           node.V2Path,
 		"host":           node.V2Host,
 		"inside_port":    node.V2rayInsiderPort,
-		"server":         node.Ip,
+		"server":         node.Server,
 	}
 	if node.V2Tls == 1 {
 		response.Data.Server["protocol_param"] = "tls"

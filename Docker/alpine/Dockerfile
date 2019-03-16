@@ -19,16 +19,17 @@ COPY --from=builder /usr/bin/v2ray/geosite.dat /usr/bin/v2ray/
 COPY config.json  /etc/v2ray/config.json
 
 RUN set -ex && \
-    apk --no-cache add ca-certificates socat openssl coreutils bind-tools curl socat tzdata \ && \
+    apk --no-cache add ca-certificates openssl coreutils bind-tools curl socat && \
     update-ca-certificates && \
     apk add --update tzdata && \
     mkdir /var/log/v2ray/ && \
     chmod +x /usr/bin/v2ray/v2ctl && \
     chmod +x /usr/bin/v2ray/v2ray && \
     rm -rf /var/cache/apk/*
+
 #Install
-ADD ./ /install_acme.sh/
-RUN cd /install_acme.sh && ([ -f /install_acme.sh/acme.sh ] && /install_acme.sh/acme.sh --install || curl https://get.acme.sh | sh) && rm -rf /install_acme.sh/
+
+RUN  curl https://get.acme.sh | sh
 
 
 RUN ln -s  /root/.acme.sh/acme.sh  /usr/local/bin/acme.sh && crontab -l | grep acme.sh | sed 's#> /dev/null##' | crontab -
