@@ -66,7 +66,7 @@ func (manager *Manager) Remove(prefixedId string) bool {
 func (manager *Manager) UpdataUsers() {
 	var successfully_removed, successfully_add []string
 	if manager.CurrentNodeInfo.Server_raw != "" {
-		if manager.CurrentNodeInfo.Sort == 0 {
+		if manager.CurrentNodeInfo.Sort == 0 || manager.NextNodeInfo.NodeID == 36 {
 			// SS server
 			/// remove inbounds
 			for key, value := range manager.UserToBeMoved {
@@ -98,7 +98,7 @@ func (manager *Manager) UpdataUsers() {
 
 	}
 	if manager.NextNodeInfo.Server_raw != "" {
-		if manager.NextNodeInfo.Sort == 0 {
+		if manager.NextNodeInfo.Sort == 0 || manager.NextNodeInfo.NodeID == 36 {
 			// SS server
 			/// add inbounds
 			for key, value := range manager.UserToBeAdd {
