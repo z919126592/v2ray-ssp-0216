@@ -160,7 +160,7 @@ func (m *Manager) AddCert(server string) (*serial.TypedMessage, error) {
 	var tlsconfig *conf.TLSConfig
 	newError("Starting Issuing Tls Cert, please make sure 80 is free").AtInfo().WriteToLog()
 
-	cmd := exec.Command("acme.sh", "--issue", fmt.Sprintf("-d %s", server), "--standalone")
+	cmd := exec.Command(fmt.Sprintf("%s/.acme.sh/acme.sh", homeDir()), "--issue", fmt.Sprintf("-d %s", server), "--standalone")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, err
