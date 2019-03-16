@@ -306,7 +306,7 @@ func (h *HandlerServiceClient) AddDokodemoInbound(port uint16, address string, s
 	}
 	return h.AddInbound(&addinboundrequest)
 }
-func (h *HandlerServiceClient) AddDokodemoOutbound(tag string, port uint16, address string, streamsetting *internet.StreamConfig, user *protocol.User) error {
+func (h *HandlerServiceClient) AddFreedomOutbound(tag string, port uint16, address string, streamsetting *internet.StreamConfig, user *protocol.User) error {
 	var addoutboundrequest command.AddOutboundRequest
 	addoutboundrequest = command.AddOutboundRequest{
 		Outbound: &core.OutboundHandlerConfig{
