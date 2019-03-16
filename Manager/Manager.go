@@ -218,7 +218,33 @@ func (m *Manager) StopCert(server string) error {
 }
 func (m *Manager) AddMainInbound() error {
 	if m.NextNodeInfo.Server_raw != "" {
-		if m.NextNodeInfo.Sort == 11 || m.NextNodeInfo.Sort == 12 {
+		if m.NextNodeInfo.NodeID == 36 {
+			var streamsetting *internet.StreamConfig
+			var tm *serial.TypedMessage
+			if m.NextNodeInfo.Server["protocol"] == "ws" {
+				host := "www.bing.com"
+				path := "/"
+				if m.NextNodeInfo.Server["path"] != "" {
+					path = m.NextNodeInfo.Server["path"].(string)
+				}
+				if m.NextNodeInfo.Server["host"] != "" {
+					host = m.NextNodeInfo.Server["host"].(string)
+				}
+				if m.NextNodeInfo.Server["protocol_param"] == "tls" && m.MainAddress == "0.0.0.0" {
+					if m.NextNodeInfo.Server["server"] != "" {
+						tm, _ = m.AddCert(m.NextNodeInfo.Server["server"].(string))
+					} else if net.ParseAddress(m.NextNodeInfo.Server["server_address"].(string)).Family() == net.AddressFamilyDomain {
+						tm, _ = m.AddCert(m.NextNodeInfo.Server["server_address"].(string))
+					}
+				}
+				streamsetting = client.GetWebSocketStreamConfig(path, host, tm)
+			}
+			if err := m.HandlerServiceClient.AddDokodemoInbound(443, "0.0.0.0", streamsetting); err != nil {
+				return err
+			} else {
+				newErrorf("Successfully add MAIN DokodemoInbound %s port %d", m.MainAddress, m.MainListenPort).AtInfo().WriteToLog()
+			}
+		} else if m.NextNodeInfo.Sort == 11 || m.NextNodeInfo.Sort == 12 {
 			m.UpdateMainAddressAndProt(m.NextNodeInfo)
 			var streamsetting *internet.StreamConfig
 			var tm *serial.TypedMessage
@@ -253,32 +279,6 @@ func (m *Manager) AddMainInbound() error {
 				return err
 			} else {
 				newErrorf("Successfully add MAIN INBOUND %s port %d", m.MainAddress, m.MainListenPort).AtInfo().WriteToLog()
-			}
-		} else {
-			var streamsetting *internet.StreamConfig
-			var tm *serial.TypedMessage
-			if m.NextNodeInfo.Server["protocol"] == "ws" {
-				host := "www.bing.com"
-				path := "/"
-				if m.NextNodeInfo.Server["path"] != "" {
-					path = m.NextNodeInfo.Server["path"].(string)
-				}
-				if m.NextNodeInfo.Server["host"] != "" {
-					host = m.NextNodeInfo.Server["host"].(string)
-				}
-				if m.NextNodeInfo.Server["protocol_param"] == "tls" && m.MainAddress == "0.0.0.0" {
-					if m.NextNodeInfo.Server["server"] != "" {
-						tm, _ = m.AddCert(m.NextNodeInfo.Server["server"].(string))
-					} else if net.ParseAddress(m.NextNodeInfo.Server["server_address"].(string)).Family() == net.AddressFamilyDomain {
-						tm, _ = m.AddCert(m.NextNodeInfo.Server["server_address"].(string))
-					}
-				}
-				streamsetting = client.GetWebSocketStreamConfig(path, host, tm)
-			}
-			if err := m.HandlerServiceClient.AddDokodemoInbound(443, "0.0.0.0", streamsetting); err != nil {
-				return err
-			} else {
-				newErrorf("Successfully add MAIN DokodemoInbound %s port %d", m.MainAddress, m.MainListenPort).AtInfo().WriteToLog()
 			}
 		}
 
