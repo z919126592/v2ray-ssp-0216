@@ -108,7 +108,7 @@ func GetKcpStreamConfig(headkey string) *internet.StreamConfig {
 	return &streamsetting
 }
 
-func GetWebSocketStreamConfig(path string, host string) *internet.StreamConfig {
+func GetWebSocketStreamConfig(path string, host string, tm *serial.TypedMessage) *internet.StreamConfig {
 	var streamsetting internet.StreamConfig
 	streamsetting = internet.StreamConfig{
 		ProtocolName: "websocket",
@@ -126,11 +126,13 @@ func GetWebSocketStreamConfig(path string, host string) *internet.StreamConfig {
 				}),
 			},
 		},
+		SecuritySettings: []*serial.TypedMessage{tm},
+		SecurityType:     tm.Type,
 	}
 	return &streamsetting
 }
 
-func GetDomainsocketStreamConfig(filepath string) *internet.StreamConfig {
+func GetDomainsocketStreamConfig(filepath string, tm *serial.TypedMessage) *internet.StreamConfig {
 	var streamsetting internet.StreamConfig
 	streamsetting = internet.StreamConfig{
 		ProtocolName: "domainsocket",
@@ -142,6 +144,8 @@ func GetDomainsocketStreamConfig(filepath string) *internet.StreamConfig {
 				}),
 			},
 		},
+		SecurityType:     tm.Type,
+		SecuritySettings: []*serial.TypedMessage{tm},
 	}
 	return &streamsetting
 }

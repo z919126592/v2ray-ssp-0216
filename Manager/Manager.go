@@ -5,8 +5,14 @@ import (
 	"fmt"
 	"github.com/rico93/v2ray-sspanel-v3-mod_Uim-plugin/client"
 	"github.com/rico93/v2ray-sspanel-v3-mod_Uim-plugin/model"
+	"os"
+	"os/exec"
+	"os/user"
 	"strconv"
 	"v2ray.com/core/common/errors"
+	"v2ray.com/core/common/net"
+	"v2ray.com/core/common/serial"
+	"v2ray.com/core/infra/conf"
 	"v2ray.com/core/transport/internet"
 )
 
@@ -27,6 +33,14 @@ type Manager struct {
 	NodeID                uint
 	CheckRate             int
 	SpeedTestCheckRate    int
+}
+
+func homeDir() string {
+	usr, err := user.Current()
+	if err != nil {
+		os.Exit(1)
+	}
+	return usr.HomeDir
 }
 
 func (manager *Manager) GetUsers() map[string]model.UserModel {
@@ -142,11 +156,58 @@ func (manager *Manager) UpdateMainAddressAndProt(node_info *model.NodeInfo) {
 		}
 	}
 }
+func (m *Manager) AddCert(server string) (*serial.TypedMessage, error) {
+	var tlsconfig *conf.TLSConfig
+	newError("Starting Issuing Tls Cert, please make sure 80 is free").AtInfo().WriteToLog()
+
+	cmd := exec.Command("acme.sh", "--issue", fmt.Sprintf("-d %s", server), "--standalone")
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return nil, err
+	} else {
+		newError(out).AtInfo().WriteToLog()
+		tlsconfig = &conf.TLSConfig{
+			Certs: []*conf.TLSCertConfig{&conf.TLSCertConfig{
+				CertFile: fmt.Sprintf("%s/.acme.sh/%s/fullchain.cer", homeDir(), server),
+				KeyFile:  fmt.Sprintf("%[1]s/.acme.sh/%[2]s/%[2]s.key", homeDir(), server),
+			}},
+			InsecureCiphers: true,
+		}
+		cert, err := tlsconfig.Build()
+		if err != nil {
+			return nil, newError("Failed to build TLS config.").Base(err)
+		}
+		tm := serial.ToTypedMessage(cert)
+		return tm, nil
+	}
+}
+func (m *Manager) StopCert(server string) error {
+	newError("Starting Issuing Tls Cert, please make sure 80 is free").AtInfo().WriteToLog()
+
+	cmd := exec.Command("acme.sh", "-remove", fmt.Sprintf("-d %s", server))
+	_, err := cmd.CombinedOutput()
+	if err != nil {
+		return err
+	} else {
+		newErrorf("successfully stop renew %s", server).AtInfo().WriteToLog()
+		cmd = exec.Command("rm", "-y", fmt.Sprintf("%s/.acme.sh/%s/fullchain.cer", homeDir(), server), fmt.Sprintf("%[1]s/.acme.sh/%[2]s/%[2]s.key", homeDir(), server))
+		_, err := cmd.CombinedOutput()
+		if err != nil {
+			return err
+		} else {
+			newErrorf("successfully remove certs for  %s", server).AtInfo().WriteToLog()
+			return nil
+		}
+
+	}
+}
 func (m *Manager) AddMainInbound() error {
 	if m.NextNodeInfo.Server_raw != "" {
 		if m.NextNodeInfo.Sort == 11 || m.NextNodeInfo.Sort == 12 {
 			m.UpdateMainAddressAndProt(m.NextNodeInfo)
 			var streamsetting *internet.StreamConfig
+			var tm *serial.TypedMessage
+			var err error
 			streamsetting = &internet.StreamConfig{}
 
 			if m.NextNodeInfo.Server["protocol"] == "ws" {
@@ -158,7 +219,24 @@ func (m *Manager) AddMainInbound() error {
 				if m.NextNodeInfo.Server["host"] != "" {
 					host = m.NextNodeInfo.Server["host"].(string)
 				}
-				streamsetting = client.GetWebSocketStreamConfig(path, host)
+				if m.NextNodeInfo.Server["protocol_param"] == "tls" && m.MainAddress == "0.0.0.0" {
+					if m.NextNodeInfo.Server["server"] != "" {
+						tm, err = m.AddCert(m.NextNodeInfo.Server["server"].(string))
+						if err != nil {
+							newError("Can't get cert for server").Base(err).AtWarning().WriteToLog()
+						} else {
+
+						}
+					} else if net.ParseAddress(m.NextNodeInfo.Server["server_address"].(string)).Family() == net.AddressFamilyDomain {
+						tm, err = m.AddCert(m.NextNodeInfo.Server["server_address"].(string))
+						if err != nil {
+							newError("Can't get cert for server_address").Base(err).AtWarning().WriteToLog()
+						} else {
+
+						}
+					}
+				}
+				streamsetting = client.GetWebSocketStreamConfig(path, host, tm)
 			} else if m.NextNodeInfo.Server["protocol"] == "kcp" || m.NextNodeInfo.Server["protocol"] == "mkcp" {
 				header_key := "noop"
 				if m.NextNodeInfo.Server["protocol_param"] != "" {
@@ -180,6 +258,8 @@ func (m *Manager) AddOuntBound(disnodeinfo *model.DisNodeInfo) error {
 	if disnodeinfo.Server_raw != "" {
 		if disnodeinfo.Sort == 11 || disnodeinfo.Sort == 12 {
 			var streamsetting *internet.StreamConfig
+			var tm *serial.TypedMessage
+			var err error
 			streamsetting = &internet.StreamConfig{}
 
 			if disnodeinfo.Server["protocol"] == "ws" {
@@ -191,10 +271,21 @@ func (m *Manager) AddOuntBound(disnodeinfo *model.DisNodeInfo) error {
 				if m.NextNodeInfo.Server["host"] != "" {
 					host = disnodeinfo.Server["host"].(string)
 				}
-				streamsetting = client.GetWebSocketStreamConfig(path, host)
-			} else if m.NextNodeInfo.Server["protocol"] == "kcp" || m.NextNodeInfo.Server["protocol"] == "mkcp" {
+				if m.NextNodeInfo.Server["protocol_param"] == "tls" && m.MainAddress == "0.0.0.0" {
+					if m.NextNodeInfo.Server["server"] != "" {
+						tm, err = m.AddCert(m.NextNodeInfo.Server["server"].(string))
+						if err != nil {
+							newError("Can't get cert").Base(err).AtWarning().WriteToLog()
+						} else {
+
+						}
+					}
+
+				}
+				streamsetting = client.GetWebSocketStreamConfig(path, host, tm)
+			} else if disnodeinfo.Server["protocol"] == "kcp" || disnodeinfo.Server["protocol"] == "mkcp" {
 				header_key := "noop"
-				if m.NextNodeInfo.Server["protocol_param"] != "" {
+				if disnodeinfo.Server["protocol_param"] != "" {
 					header_key = disnodeinfo.Server["protocol_param"].(string)
 				}
 				streamsetting = client.GetKcpStreamConfig(header_key)
