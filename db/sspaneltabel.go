@@ -97,6 +97,8 @@ type User struct {
 	ExpireIN       time.Time `gorm:"colum:expire_in"`
 	TransferEnable int64     `gorm:"column:transfer_enable"`
 	Time           int64     `gorm:"column:t"`
+	Obfs           string    `gorm:"column:obfs"`
+	Protocol       string    `gorm:"column:protocol"`
 }
 
 func (*User) TableName() string {

@@ -1,9 +1,15 @@
 package db
 
 import (
+	"crypto/md5"
+	"encoding/hex"
+	"fmt"
 	"github.com/imroc/req"
 	"github.com/rico93/v2ray-sspanel-v3-mod_Uim-plugin/model"
 	"github.com/rico93/v2ray-sspanel-v3-mod_Uim-plugin/speedtest"
+	"regexp"
+	"strconv"
+	"strings"
 )
 
 type NodeinfoResponse struct {
@@ -53,6 +59,31 @@ var maps = map[string]interface{}{
 	"host":           "",
 	"inside_port":    "",
 	"server":         "",
+}
+
+func getMD5(data string) string {
+	md5Ctx := md5.New()
+	md5Ctx.Write([]byte(data))
+	cipherStr := md5Ctx.Sum(nil)
+	current_md5 := hex.EncodeToString(cipherStr)
+	return current_md5
+}
+func get_mu_host(id uint, md5 string, MU_REGEX string, MU_SUFFIX string) string {
+	regex_text := MU_REGEX
+	regex_text = strings.Replace(regex_text, "%id", fmt.Sprintf("%d", id), -1)
+	regex_text = strings.Replace(regex_text, "%suffix", MU_SUFFIX, -1)
+	regex := regexp.MustCompile(`%-?[1-9]\d*m`)
+	for _, item := range regex.FindAllString(regex_text, -1) {
+		regex_num := strings.Replace(item, "%", "", -1)
+		regex_num = strings.Replace(regex_num, "m", "", -1)
+		md5_length, _ := strconv.ParseInt(regex_num, 10, 0)
+		if md5_length < 0 {
+			regex_text = strings.Replace(regex_text, item, md5[32+md5_length:], -1)
+		} else {
+			regex_text = strings.Replace(regex_text, item, md5[:md5_length], -1)
+		}
+	}
+	return regex_text
 }
 
 type Db interface {

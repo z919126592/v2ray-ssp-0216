@@ -14,7 +14,9 @@ import (
 )
 
 type SSRpanel struct {
-	Db *gorm.DB
+	Db        *gorm.DB
+	MU_REGEX  string
+	MU_SUFFIX string
 }
 
 func (api *SSRpanel) GetApi(url string, params map[string]interface{}) (*req.Resp, error) {
@@ -111,6 +113,8 @@ func (api *SSRpanel) GetALLUsers(info *model.NodeInfo) (*AllUsers, error) {
 			Method:         user.Method,
 			Port:           uint16(user.Port),
 			NodeSpeedlimit: uint(user.SpeedLimitPerUser / 125000),
+			Obfs:           user.Obfs,
+			Protocol:       user.Protocol,
 		})
 
 	}
@@ -133,9 +137,10 @@ func (api *SSRpanel) GetALLUsers(info *model.NodeInfo) (*AllUsers, error) {
 				response.Data[index].AlterId = uint32(alterid)
 			}
 		}
-
-		key := prifix + response.Data[index].Email + fmt.Sprintf("Rate_%d_AlterID_%d_Method_%s_Passwd_%s_Port_%d", response.Data[index].Rate,
-			response.Data[index].AlterId, response.Data[index].Method, response.Data[index].Passwd, response.Data[index].Port,
+		user := response.Data[index]
+		response.Data[index].Muhost = get_mu_host(user.UserID, getMD5(fmt.Sprintf("%d%s%s%s%s", user.UserID, user.Passwd, user.Method, user.Obfs, user.Protocol)), api.MU_REGEX, api.MU_SUFFIX)
+		key := prifix + response.Data[index].Email + fmt.Sprintf("Rate_%d_AlterID_%d_Method_%s_Passwd_%s_Port_%d_Obfs_%s_Protocol_%s", response.Data[index].Rate,
+			response.Data[index].AlterId, response.Data[index].Method, response.Data[index].Passwd, response.Data[index].Port, response.Data[index].Obfs, response.Data[index].Protocol,
 		)
 		response.Data[index].PrefixedId = key
 		allusers.Data[key] = response.Data[index]

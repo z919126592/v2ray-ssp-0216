@@ -8,9 +8,12 @@ type UserModel struct {
 	Method         string `json:"method"`
 	Port           uint16 `json:"port"`
 	NodeSpeedlimit uint   `json:"node_speedlimit"`
+	Obfs           string `json:"obfs"`
+	Protocol       string `json:"protocol"`
 	Rate           uint32
 	AlterId        uint32
 	PrefixedId     string
+	Muhost         string
 }
 
 type UserTrafficLog struct {

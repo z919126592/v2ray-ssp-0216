@@ -102,6 +102,8 @@
     "panelUrl": "https://google.com",
     "panelKey": "55fUxDGFzH3n",
     "downWithPanel": 1,
+    "mu_regex":  "%5m%id.%suffix",
+    "mu_suffix": "zhaoj.in",
     "mysql": {
       "host": "https://bing.com",
       "port": 3306,

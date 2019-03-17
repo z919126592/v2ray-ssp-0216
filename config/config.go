@@ -74,6 +74,8 @@ type Config struct {
 	MySQL              *MySQLConfig `json:"mysql"`
 	Paneltype          int          `json:"paneltype"`
 	Usemysql           int          `json:"usemysql"`
+	MU_REGEX           string       `json:"mu_regex"`
+	MU_SUFFIX          string       `json:"mu_suffix"`
 	V2rayConfig        *conf.Config
 }
 

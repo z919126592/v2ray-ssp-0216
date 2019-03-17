@@ -16,6 +16,8 @@ type SSRUserModel struct {
 	Time              int64  `gorm:"column:t"`
 	Upload            int64  `gorm:"column:u"`
 	Download          int64  `gorm:"column:d"`
+	Obfs              string `gorm:"column:obfs"`
+	Protocol          string `gorm:"column:protocol"`
 }
 
 func (*SSRUserModel) TableName() string {

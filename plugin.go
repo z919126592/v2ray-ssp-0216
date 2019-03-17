@@ -109,12 +109,14 @@ func run() error {
 					if err != nil {
 						fmt.Println(err)
 					}
-					database = &db.SSpanel{Db: mysql}
+					database = &db.SSpanel{Db: mysql, MU_SUFFIX: cfg.MU_SUFFIX, MU_REGEX: cfg.MU_REGEX}
 					newError("Using Mysql Now").AtInfo().WriteToLog()
 				} else {
 					database = &db.Webapi{
 						WebToken:   cfg.PanelKey,
 						WebBaseURl: cfg.PanelUrl,
+						MU_SUFFIX:  cfg.MU_SUFFIX,
+						MU_REGEX:   cfg.MU_REGEX,
 					}
 					newError("Using Webapi Now").AtInfo().WriteToLog()
 				}
@@ -125,7 +127,7 @@ func run() error {
 					if err != nil {
 						fmt.Println(err)
 					}
-					database = &db.SSRpanel{Db: mysql}
+					database = &db.SSRpanel{Db: mysql, MU_SUFFIX: cfg.MU_SUFFIX, MU_REGEX: cfg.MU_REGEX}
 					newError("Using Mysql Now").AtInfo().WriteToLog()
 				} else {
 					fatal("No databese config for ssrpanel")

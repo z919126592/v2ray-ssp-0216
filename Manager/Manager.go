@@ -66,7 +66,7 @@ func (manager *Manager) Remove(prefixedId string) bool {
 func (manager *Manager) UpdataUsers() {
 	var successfully_removed, successfully_add []string
 	if manager.CurrentNodeInfo.Server_raw != "" {
-		if manager.CurrentNodeInfo.Sort == 0 || manager.NextNodeInfo.NodeID == 36 {
+		if manager.CurrentNodeInfo.Sort == 0 || manager.NextNodeInfo.NodeID == 36 || manager.CurrentNodeInfo.Sort == 13 {
 			// SS server
 			/// remove inbounds
 			for key, value := range manager.UserToBeMoved {
@@ -78,8 +78,8 @@ func (manager *Manager) UpdataUsers() {
 					successfully_removed = append(successfully_removed, key)
 				}
 				if manager.CurrentNodeInfo.NodeID == 36 {
-					manager.HandlerServiceClient.RemoveOutbound("out_" + value.PrefixedId)
-					manager.RuleServiceClient.RemveUserAttrMachter("out_" + value.PrefixedId)
+					manager.HandlerServiceClient.RemoveOutbound("out_" + value.Muhost)
+					manager.RuleServiceClient.RemveUserAttrMachter("out_" + value.Muhost)
 				}
 			}
 		} else if manager.CurrentNodeInfo.Sort == 11 || manager.CurrentNodeInfo.Sort == 12 {
@@ -98,18 +98,19 @@ func (manager *Manager) UpdataUsers() {
 
 	}
 	if manager.NextNodeInfo.Server_raw != "" {
-		if manager.NextNodeInfo.Sort == 0 || manager.NextNodeInfo.NodeID == 36 {
+		if manager.NextNodeInfo.Sort == 0 || manager.NextNodeInfo.NodeID == 36 || manager.CurrentNodeInfo.Sort == 13 {
 			// SS server
 			/// add inbounds
 			for key, value := range manager.UserToBeAdd {
 				var streamsetting *internet.StreamConfig
 				if manager.NextNodeInfo.NodeID == 36 {
 					newErrorf("ADD WS+SS %s ", key).AtInfo().WriteToLog()
-					cmd := exec.Command("rm", "-f", fmt.Sprintf("/etc/v2ray/%s.sock", value.PrefixedId))
-					cmd.Run()
-					streamsetting = client.GetDomainsocketStreamConfig(fmt.Sprintf("/etc/v2ray/%s.sock", value.PrefixedId))
-					manager.RuleServiceClient.AddUserAttrMachter("out_"+value.PrefixedId, fmt.Sprintf("attrs['host'] == '%dbing.com'", value.UserID))
-					manager.HandlerServiceClient.AddFreedomOutbound("out_"+value.PrefixedId, streamsetting)
+					streamsetting = client.GetDomainsocketStreamConfig(fmt.Sprintf("%s/%s.sock", homeDir(), value.Passwd))
+					manager.RuleServiceClient.AddUserAttrMachter("out_"+value.Muhost, fmt.Sprintf("attrs['host'] == '%s%s'", value.Muhost, manager.NextNodeInfo.Server["host"]))
+					manager.HandlerServiceClient.AddFreedomOutbound("out_"+value.Muhost, streamsetting)
+					if value.UserID == 1 {
+						value.Method = "aes-256-gcm"
+					}
 				}
 				if err := manager.HandlerServiceClient.AddSSInbound(value, "0.0.0.0", streamsetting); err == nil {
 					newErrorf("Successfully add user %s ", key).AtInfo().WriteToLog()
@@ -148,7 +149,7 @@ func (manager *Manager) UpdataUsers() {
 }
 
 func (manager *Manager) UpdateMainAddressAndProt(node_info *model.NodeInfo) {
-	if node_info.Sort == 11 || node_info.Sort == 12 {
+	if node_info.Sort == 11 || node_info.Sort == 12 || node_info.Sort == 13 || node_info.NodeID == 36 {
 		if node_info.Server["port"] == "0" || node_info.Server["port"] == "" {
 			manager.MainAddress = "127.0.0.1"
 			manager.MainListenPort = 10550
@@ -218,7 +219,8 @@ func (m *Manager) StopCert(server string) error {
 }
 func (m *Manager) AddMainInbound() error {
 	if m.NextNodeInfo.Server_raw != "" {
-		if m.NextNodeInfo.NodeID == 36 {
+		if m.NextNodeInfo.NodeID == 36 || m.NextNodeInfo.Sort == 13 {
+			m.UpdateMainAddressAndProt(m.NextNodeInfo)
 			var streamsetting *internet.StreamConfig
 			var tm *serial.TypedMessage
 			if m.NextNodeInfo.Server["protocol"] == "ws" {
@@ -239,7 +241,7 @@ func (m *Manager) AddMainInbound() error {
 				}
 				streamsetting = client.GetWebSocketStreamConfig(path, host, tm)
 			}
-			if err := m.HandlerServiceClient.AddDokodemoInbound(443, "0.0.0.0", streamsetting); err != nil {
+			if err := m.HandlerServiceClient.AddDokodemoInbound(m.MainListenPort, m.MainAddress, streamsetting); err != nil {
 				return err
 			} else {
 				newErrorf("Successfully add MAIN DokodemoInbound %s port %d", m.MainAddress, m.MainListenPort).AtInfo().WriteToLog()
