@@ -412,12 +412,12 @@ func (m *Manager) CopyNodeinfo() {
 	if err != nil {
 		newError(err).AtWarning().WriteToLog()
 	}
-	var currentnodeinfo *model.NodeInfo
-	err = json.Unmarshal(jsonString, currentnodeinfo)
+	currentnodeinfo := model.NodeInfo{}
+	err = json.Unmarshal(jsonString, &currentnodeinfo)
 	if err != nil {
 		newError(err).AtWarning().WriteToLog()
 	}
-	m.CurrentNodeInfo = currentnodeinfo
+	m.CurrentNodeInfo = &currentnodeinfo
 
 }
 func (m *Manager) UpdateServer() error {
