@@ -371,7 +371,7 @@ func (h *HandlerServiceClient) ConvertVmessUser(userModel model.UserModel) *prot
 		}),
 	}
 }
-func (h *HandlerServiceClient) ConverSSUser(userModel model.UserModel) *protocol.User {
+func (h *HandlerServiceClient) ConverDokodemoUser(userModel model.UserModel) *protocol.User {
 	return &protocol.User{
 		Level: 0,
 		Email: userModel.Email,
@@ -381,7 +381,7 @@ func (h *HandlerServiceClient) ConverSSUser(userModel model.UserModel) *protocol
 		}),
 	}
 }
-func (h *HandlerServiceClient) ConverDokodemoUser(userModel model.UserModel) *protocol.User {
+func (h *HandlerServiceClient) ConverSSUser(userModel model.UserModel) *protocol.User {
 	return &protocol.User{
 		Level: 0,
 		Email: userModel.Email,
