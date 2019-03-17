@@ -78,6 +78,7 @@ func (manager *Manager) UpdataUsers() {
 					successfully_removed = append(successfully_removed, key)
 				}
 				if manager.CurrentNodeInfo.NodeID == 36 || manager.CurrentNodeInfo.Sort == 13 {
+					newErrorf("Remove AttrMachter %s", value.Muhost).AtInfo().WriteToLog()
 					manager.HandlerServiceClient.RemoveOutbound("out_" + value.Muhost)
 					manager.RuleServiceClient.RemveUserAttrMachter("out_" + value.Muhost)
 					manager.HandlerServiceClient.DelUser(value.Muhost)
@@ -106,15 +107,11 @@ func (manager *Manager) UpdataUsers() {
 				var streamsetting *internet.StreamConfig
 				if manager.NextNodeInfo.NodeID == 36 || manager.CurrentNodeInfo.Sort == 13 {
 					newErrorf("ADD WS+SS %s ", key).AtInfo().WriteToLog()
-					cmd := exec.Command("rm", "-f", fmt.Sprintf("/etc/v2ray/%s.sock", value.Muhost))
-					cmd.Run()
 					streamsetting = client.GetDomainsocketStreamConfig(fmt.Sprintf("/etc/v2ray/%s.sock", value.Muhost))
-					manager.RuleServiceClient.AddUserAttrMachter("out_"+value.Muhost, fmt.Sprintf("attrs['host'] == '%s%s'", value.Muhost, manager.NextNodeInfo.Server["host"]))
+					manager.RuleServiceClient.AddUserAttrMachter("out_"+value.Muhost, fmt.Sprintf("attrs['host'] == '%dbing.com'", value.UserID))
 					manager.HandlerServiceClient.AddFreedomOutbound("out_"+value.Muhost, streamsetting)
+					value.Muhost = fmt.Sprintf("%dbing.com", value.UserID)
 					manager.HandlerServiceClient.AddDokodemoUser(value)
-					if value.UserID == 1 {
-						value.Method = "aes-256-gcm"
-					}
 				}
 				if err := manager.HandlerServiceClient.AddSSInbound(value, "0.0.0.0", streamsetting); err == nil {
 					newErrorf("Successfully add user %s ", key).AtInfo().WriteToLog()
@@ -204,7 +201,7 @@ func (m *Manager) AddCert(server string) (*serial.TypedMessage, error) {
 }
 func (m *Manager) StopCert(server string) error {
 	newErrorf("Starting to remove %s from renew list", server).AtInfo().WriteToLog()
-	cmd := exec.Command("sh", "-c", fmt.Sprintf("%s/.acme.sh/acme.sh -remove -d %s", homeDir(), server))
+	cmd := exec.Command("sh", "-c", fmt.Sprintf("%s/.acme.sh/acme.sh --remove -d %s", homeDir(), server))
 	var out bytes.Buffer
 	var stderr bytes.Buffer
 	cmd.Stdout = &out
@@ -212,13 +209,13 @@ func (m *Manager) StopCert(server string) error {
 	cmd.Run()
 	newError(out.String()).AtInfo().WriteToLog()
 	newError(stderr.String()).AtInfo().WriteToLog()
-	newErrorf("Starting Remove  %s certs", server).AtInfo().WriteToLog()
-	cmd = exec.Command("rm", "-rf", fmt.Sprintf("%s/.acme.sh/%s/fullchain.cer", homeDir(), server), fmt.Sprintf("%[1]s/.acme.sh/%[2]s/%[2]s.key", homeDir(), server))
-	cmd.Stdout = &out
-	cmd.Stderr = &stderr
-	cmd.Run()
-	newError(out.String()).AtInfo().WriteToLog()
-	newError(stderr.String()).AtInfo().WriteToLog()
+	//newErrorf("Starting Remove  %s certs", server).AtInfo().WriteToLog()
+	//cmd = exec.Command("rm", "-rf", fmt.Sprintf("%s/.acme.sh/%s/fullchain.cer", homeDir(), server), fmt.Sprintf("%[1]s/.acme.sh/%[2]s/%[2]s.key", homeDir(), server))
+	//cmd.Stdout = &out
+	//cmd.Stderr = &stderr
+	//cmd.Run()
+	//newError(out.String()).AtInfo().WriteToLog()
+	//newError(stderr.String()).AtInfo().WriteToLog()
 	return nil
 }
 func (m *Manager) AddMainInbound() error {
@@ -365,7 +362,7 @@ func (m *Manager) RemoveUserRule(email string) {
 
 func (m *Manager) RemoveInbound() {
 	if m.CurrentNodeInfo.Server_raw != "" {
-		if m.CurrentNodeInfo.Sort == 11 || m.CurrentNodeInfo.Sort == 12 {
+		if m.CurrentNodeInfo.Sort == 11 || m.CurrentNodeInfo.Sort == 12 || m.CurrentNodeInfo.Sort == 13 || m.CurrentNodeInfo.NodeID == 36 {
 			m.UpdateMainAddressAndProt(m.CurrentNodeInfo)
 			if err := m.HandlerServiceClient.RemoveInbound(m.HandlerServiceClient.InboundTag); err != nil {
 				newError(err).AtWarning().WriteToLog()
