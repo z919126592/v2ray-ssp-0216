@@ -77,9 +77,10 @@ func (manager *Manager) UpdataUsers() {
 					newError(err).AtDebug().WriteToLog()
 					successfully_removed = append(successfully_removed, key)
 				}
-				if manager.CurrentNodeInfo.NodeID == 36 {
+				if manager.CurrentNodeInfo.NodeID == 36 || manager.CurrentNodeInfo.Sort == 13 {
 					manager.HandlerServiceClient.RemoveOutbound("out_" + value.Muhost)
 					manager.RuleServiceClient.RemveUserAttrMachter("out_" + value.Muhost)
+					manager.HandlerServiceClient.DelUser(value.Muhost)
 				}
 			}
 		} else if manager.CurrentNodeInfo.Sort == 11 || manager.CurrentNodeInfo.Sort == 12 {
@@ -103,11 +104,14 @@ func (manager *Manager) UpdataUsers() {
 			/// add inbounds
 			for key, value := range manager.UserToBeAdd {
 				var streamsetting *internet.StreamConfig
-				if manager.NextNodeInfo.NodeID == 36 {
+				if manager.NextNodeInfo.NodeID == 36 || manager.CurrentNodeInfo.Sort == 13 {
 					newErrorf("ADD WS+SS %s ", key).AtInfo().WriteToLog()
-					streamsetting = client.GetDomainsocketStreamConfig(fmt.Sprintf("%s/%s.sock", homeDir(), value.Passwd))
+					cmd := exec.Command("rm", "-f", fmt.Sprintf("/etc/v2ray/%s.sock", value.Muhost))
+					cmd.Run()
+					streamsetting = client.GetDomainsocketStreamConfig(fmt.Sprintf("/etc/v2ray/%s.sock", value.Muhost))
 					manager.RuleServiceClient.AddUserAttrMachter("out_"+value.Muhost, fmt.Sprintf("attrs['host'] == '%s%s'", value.Muhost, manager.NextNodeInfo.Server["host"]))
 					manager.HandlerServiceClient.AddFreedomOutbound("out_"+value.Muhost, streamsetting)
+					manager.HandlerServiceClient.AddDokodemoUser(value)
 					if value.UserID == 1 {
 						value.Method = "aes-256-gcm"
 					}
@@ -124,7 +128,7 @@ func (manager *Manager) UpdataUsers() {
 			// VMESS
 			// add users
 			for key, value := range manager.UserToBeAdd {
-				if err := manager.HandlerServiceClient.AddUser(value); err == nil {
+				if err := manager.HandlerServiceClient.AddVmessUser(value); err == nil {
 					newErrorf("Successfully add user %s ", key).AtInfo().WriteToLog()
 					successfully_add = append(successfully_add, key)
 				} else {

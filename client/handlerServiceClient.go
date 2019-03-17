@@ -65,18 +65,25 @@ func NewHandlerServiceClient(client *grpc.ClientConn, inboundTag string) *Handle
 }
 
 // user
-func (h *HandlerServiceClient) DelUser(email string) error {
+func (h *HandlerServiceClient) DelUser(user string) error {
 	req := &command.AlterInboundRequest{
 		Tag:       h.InboundTag,
-		Operation: serial.ToTypedMessage(&command.RemoveUserOperation{Email: email}),
+		Operation: serial.ToTypedMessage(&command.RemoveUserOperation{Email: user}),
 	}
 	return h.AlterInbound(req)
 }
 
-func (h *HandlerServiceClient) AddUser(user model.UserModel) error {
+func (h *HandlerServiceClient) AddVmessUser(user model.UserModel) error {
 	req := &command.AlterInboundRequest{
 		Tag:       h.InboundTag,
 		Operation: serial.ToTypedMessage(&command.AddUserOperation{User: h.ConvertVmessUser(user)}),
+	}
+	return h.AlterInbound(req)
+}
+func (h *HandlerServiceClient) AddDokodemoUser(user model.UserModel) error {
+	req := &command.AlterInboundRequest{
+		Tag:       h.InboundTag,
+		Operation: serial.ToTypedMessage(&command.AddUserOperation{User: h.ConverDokodemoUser(user)}),
 	}
 	return h.AlterInbound(req)
 }
@@ -298,6 +305,16 @@ func (h *HandlerServiceClient) AddDokodemoInbound(port uint16, address string, s
 				Address:        net.NewIPOrDomain(net.ParseAddress("v1.mux.cool")),
 				Networks:       []net.Network{net.Network_TCP, net.Network_UDP},
 				FollowRedirect: false,
+				User: []*protocol.User{
+					{
+						Level: 0,
+						Rate:  0,
+						Email: "rico93@xxx.com",
+						Account: serial.ToTypedMessage(&dokodemo.Account{
+							Mu_Host: "rico",
+						}),
+					},
+				},
 			}),
 		},
 	}
@@ -355,6 +372,16 @@ func (h *HandlerServiceClient) ConvertVmessUser(userModel model.UserModel) *prot
 	}
 }
 func (h *HandlerServiceClient) ConverSSUser(userModel model.UserModel) *protocol.User {
+	return &protocol.User{
+		Level: 0,
+		Email: userModel.Email,
+		Rate:  userModel.Rate,
+		Account: serial.ToTypedMessage(&dokodemo.Account{
+			Mu_Host: userModel.Muhost,
+		}),
+	}
+}
+func (h *HandlerServiceClient) ConverDokodemoUser(userModel model.UserModel) *protocol.User {
 	return &protocol.User{
 		Level: 0,
 		Email: userModel.Email,
