@@ -100,7 +100,7 @@ func (manager *Manager) UpdataUsers() {
 
 	}
 	if manager.NextNodeInfo.Server_raw != "" {
-		if manager.NextNodeInfo.Sort == 0 || manager.CurrentNodeInfo.Sort == 13 {
+		if manager.NextNodeInfo.Sort == 0 || manager.NextNodeInfo.Sort == 13 {
 			// SS server
 			/// add inbounds
 			for key, value := range manager.UserToBeAdd {
