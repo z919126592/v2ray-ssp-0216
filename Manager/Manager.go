@@ -292,28 +292,23 @@ func (m *Manager) AddOuntBound(disnodeinfo *model.DisNodeInfo) error {
 		if disnodeinfo.Sort == 11 || disnodeinfo.Sort == 12 {
 			var streamsetting *internet.StreamConfig
 			var tm *serial.TypedMessage
-			var err error
 			streamsetting = &internet.StreamConfig{}
 
 			if disnodeinfo.Server["protocol"] == "ws" {
 				host := "www.bing.com"
 				path := "/"
-				if m.NextNodeInfo.Server["path"] != "" {
+				if disnodeinfo.Server["path"] != "" {
 					path = disnodeinfo.Server["path"].(string)
 				}
-				if m.NextNodeInfo.Server["host"] != "" {
+				if disnodeinfo.Server["host"] != "" {
 					host = disnodeinfo.Server["host"].(string)
 				}
-				if m.NextNodeInfo.Server["protocol_param"] == "tls" && m.MainAddress == "0.0.0.0" {
-					if m.NextNodeInfo.Server["server"] != "" {
-						tm, err = m.AddCert(m.NextNodeInfo.Server["server"].(string))
-						if err != nil {
-							newError("Can't get cert").Base(err).AtWarning().WriteToLog()
-						} else {
-
-						}
+				if disnodeinfo.Server["protocol_param"] == "tls" {
+					tlsconfig := &conf.TLSConfig{
+						InsecureCiphers: true,
 					}
-
+					cert, _ := tlsconfig.Build()
+					tm = serial.ToTypedMessage(cert)
 				}
 				streamsetting = client.GetWebSocketStreamConfig(path, host, tm)
 			} else if disnodeinfo.Server["protocol"] == "kcp" || disnodeinfo.Server["protocol"] == "mkcp" {
