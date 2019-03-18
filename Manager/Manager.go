@@ -71,7 +71,7 @@ func (manager *Manager) UpdataUsers() {
 			/// remove inbounds
 			for key, value := range manager.UserToBeMoved {
 				if err := manager.HandlerServiceClient.RemoveInbound(value.PrefixedId); err == nil {
-					newErrorf("Successfully remove user %s ", key).AtInfo().WriteToLog()
+					newErrorf("Successfully remove user %s", key).AtInfo().WriteToLog()
 					successfully_removed = append(successfully_removed, key)
 				} else {
 					newError(err).AtDebug().WriteToLog()
@@ -105,10 +105,10 @@ func (manager *Manager) UpdataUsers() {
 			/// add inbounds
 			for key, value := range manager.UserToBeAdd {
 				var streamsetting *internet.StreamConfig
-				if manager.CurrentNodeInfo.Sort == 13 {
-					newErrorf("ADD WS+SS %s ", key).AtInfo().WriteToLog()
+				if manager.NextNodeInfo.Sort == 13 {
+					newErrorf("ADD WS+SS %s  %s", key, value.Muhost).AtInfo().WriteToLog()
 					streamsetting = client.GetDomainsocketStreamConfig(fmt.Sprintf("/etc/v2ray/%s.sock", value.Muhost))
-					manager.RuleServiceClient.AddUserAttrMachter("out_"+value.Muhost, fmt.Sprintf("attrs['host'] == '%s", value.Muhost))
+					manager.RuleServiceClient.AddUserAttrMachter("out_"+value.Muhost, fmt.Sprintf("attrs['host'] == '%s'", value.Muhost))
 					manager.HandlerServiceClient.AddFreedomOutbound("out_"+value.Muhost, streamsetting)
 					manager.HandlerServiceClient.AddDokodemoUser(value)
 				}
