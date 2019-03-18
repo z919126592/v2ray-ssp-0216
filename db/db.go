@@ -12,6 +12,13 @@ import (
 	"strings"
 )
 
+func Min(x, y int64) int64 {
+	if x < y {
+		return x
+	}
+	return y
+}
+
 type NodeinfoResponse struct {
 	Ret  uint            `json:"ret"`
 	Data *model.NodeInfo `json:"data"`

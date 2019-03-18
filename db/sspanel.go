@@ -216,8 +216,11 @@ func (api *SSpanel) GetALLUsers(info *model.NodeInfo) (*AllUsers, error) {
 	}
 	for index := range response.Data {
 		// 按照node 限速来调整用户限速
-		if info.NodeSpeedlimit != 0 && info.NodeSpeedlimit < response.Data[index].NodeSpeedlimit {
-			response.Data[index].NodeSpeedlimit = info.NodeSpeedlimit
+		if info.NodeSpeedlimit != 0 {
+			if info.NodeSpeedlimit > response.Data[index].NodeSpeedlimit && response.Data[index].NodeSpeedlimit != 0 {
+			} else if response.Data[index].NodeSpeedlimit == 0 || response.Data[index].NodeSpeedlimit > info.NodeSpeedlimit {
+				response.Data[index].NodeSpeedlimit = info.NodeSpeedlimit
+			}
 		}
 		// 接受到的是 Mbps， 然后我们的一个buffer 是2048byte， 差不多61个
 		response.Data[index].Rate = uint32(response.Data[index].NodeSpeedlimit * 62)
