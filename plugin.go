@@ -78,11 +78,12 @@ func run() error {
 		var err error
 		if cfg.Usemysql == 0 {
 			if strings.HasPrefix(cfg.PanelUrl, "https://") || strings.HasPrefix(cfg.PanelUrl, "http://") {
-
+				ok, err = checkAuth(cfg.PanelUrl)
 			} else {
+				ok, err = checkAuth(cfg.PanelUrl)
 				cfg.PanelUrl = "https://" + cfg.PanelUrl
 			}
-			ok, err = checkAuth(cfg.PanelUrl)
+
 		} else {
 			if cfg.MySQL != nil {
 				ok, err = checkAuth(cfg.MySQL.Host)
