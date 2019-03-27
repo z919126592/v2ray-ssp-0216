@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+	"github.com/gofrs/uuid"
 	"github.com/imroc/req"
 	"github.com/jinzhu/gorm"
 	"github.com/rico93/v2ray-sspanel-v3-mod_Uim-plugin/model"
@@ -194,7 +195,7 @@ func (api *SSpanel) GetALLUsers(info *model.NodeInfo) (*AllUsers, error) {
 		if user.TransferEnable > user.Download+user.Upload {
 			filterd_user = append(filterd_user, model.UserModel{
 				UserID:         user.ID,
-				Uuid:           user.Uuid,
+				Uuid:           uuid.NewV3(uuid.NamespaceDNS, fmt.Sprintf("%d|%s", user.ID, user.Passwd)).String(),
 				Email:          user.Email,
 				Passwd:         user.Passwd,
 				Method:         user.Method,
