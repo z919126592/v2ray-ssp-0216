@@ -82,7 +82,6 @@ func (*SsNodeOnlineLog) TableName() string {
 
 type User struct {
 	ID             uint      `gorm:"column:id"`
-	Uuid           string    `gorm:"column:uuid"`
 	Email          string    `gorm:"column:email"`
 	Passwd         string    `gorm:"column:passwd"`
 	Method         string    `gorm:"column:method"`
@@ -106,7 +105,7 @@ func (*User) TableName() string {
 }
 
 type UserTrafficLog struct {
-	Userid   uint    `gorm:"column:userid"`
+	Userid   uint    `gorm:"column:user_id"`
 	Upload   uint64  `gorm:"column:u"`
 	Download uint64  `gorm:"column:d"`
 	Nodeid   uint    `gorm:"column:node_id"`
@@ -121,7 +120,7 @@ func (*UserTrafficLog) TableName() string {
 
 type Relay struct {
 	ID           uint   `gorm:"column:id"`
-	Userid       uint   `gorm:"column:userid"`
+	Userid       uint   `gorm:"column:user_id"`
 	SourceNodeId uint   `gorm:"column:source_node_id"`
 	DistNodeId   int    `gorm:"column:dist_node_id"`
 	DistIp       string `gorm:"column:dist_ip"`
