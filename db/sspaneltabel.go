@@ -49,7 +49,7 @@ type SSNode struct {
 	NodeConnector         uint    `gorm:"column:node_connector"`
 	NodeBrandwith         uint64  `gorm:"column:node_bandwidth"`
 	NodeBrandwithLimit    uint64  `gorm:"column:node_bandwidth_limit"`
-	BrandwithlimitRestday uint    `gorm:"column:node_heartbeat"`
+	BrandwithlimitRestday uint    `gorm:"column:bandwidthlimit_resetday"`
 	NodeHeartbeat         int64   `gorm:"column:node_heartbeat"`
 	NodeIp                string  `gorm:"column:node_ip"`
 	NodeGroup             uint    `gorm:"column:node_group"`
