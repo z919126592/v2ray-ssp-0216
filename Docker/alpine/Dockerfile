@@ -19,13 +19,16 @@ COPY --from=builder /usr/bin/v2ray/geosite.dat /usr/bin/v2ray/
 COPY config.json  /etc/v2ray/config.json
 
 RUN set -ex && \
-    apk --no-cache add ca-certificates openssl coreutils bind-tools curl socat && \
+    apk --no-cache add dcron ca-certificates openssl coreutils bind-tools curl socat && \
     update-ca-certificates && \
     apk add --update tzdata && \
     mkdir /var/log/v2ray/ && \
     chmod +x /usr/bin/v2ray/v2ctl && \
     chmod +x /usr/bin/v2ray/v2ray && \
     rm -rf /var/cache/apk/*
+
+RUN mkdir -p /var/log/cron && mkdir -m 0644 -p /var/spool/cron/crontabs && touch /var/log/cron/cron.log && mkdir -m 0644 -p /etc/cron.d
+
 
 #Install
 
