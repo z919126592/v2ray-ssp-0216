@@ -117,17 +117,17 @@ pre_install_docker_compose(){
     echo "---------------------------"
     echo
     # Set ssrpanel node_id
-    echo "sspanel node_id"
+    echo "node_id"
     read -p "(Default value: 0 ):" ssrpanel_node_id
     [ -z "${ssrpanel_node_id}" ] && ssrpanel_node_id=0
     echo
     echo "---------------------------"
-    echo "ssrpanel_node_id = ${ssrpanel_node_id}"
+    echo "node_id = ${ssrpanel_node_id}"
     echo "---------------------------"
     echo
 
 
-    echo "Which connection do you prefer 0 for webapi 1 for mysql"
+    echo "Which connection do you prefer 0 for webapi and 1 for mysql"
     read -p "(v2ray_usemysql (Default 0):" v2ray_usemysql
     [ -z "${v2ray_usemysql}" ] && v2ray_usemysql=0
     echo
@@ -137,7 +137,7 @@ pre_install_docker_compose(){
     echo
 
       # Set ssrpanel_url
-    echo "Please sspanel_url, u can pass this setting u chosen use mysql"
+    echo "Please sspanel_url, u can pass this setting if u use mysql"
     read -p "(There is no default value please make sure you input the right thing):" ssrpanel_url
     [ -z "${ssrpanel_url}" ]
     echo
@@ -146,7 +146,7 @@ pre_install_docker_compose(){
     echo "---------------------------"
     echo
     # Set ssrpanel key
-    echo "sspanel key  u can pass this setting u chosen use mysql"
+    echo "sspanel key  u can pass this setting if u use mysql"
     read -p "(There is no default value please make sure you input the right thing):" ssrpanel_key
     [ -z "${ssrpanel_key}" ]
     echo
@@ -173,7 +173,7 @@ pre_install_docker_compose(){
     echo "---------------------------"
     echo
     # Set Setting if the node go downwith panel
-    echo "Setting MysqlUser u can pass this setting u chosen use webapi"
+    echo "Setting MysqlUser u can pass this setting if u use webapi"
     read -p "(v2ray_myqluser (Default root):" v2ray_myqluser
     [ -z "${v2ray_myqluser}" ] && v2ray_myqluser="root"
     echo
@@ -182,7 +182,7 @@ pre_install_docker_compose(){
     echo "---------------------------"
     echo
     # Set Setting if the node go downwith panel
-    echo "Setting MysqlPassword u can pass this setting u chosen use webapi"
+    echo "Setting MysqlPassword u can pass this setting if u use webapi"
     read -p "(v2ray_mysqlpassword (Default 1):" v2ray_mysqlpassword
     [ -z "${v2ray_mysqlpassword}" ] && v2ray_mysqlpassword=1
     echo
@@ -192,8 +192,8 @@ pre_install_docker_compose(){
     echo
     # Set Setting if the node go downwith panel
     echo "Setting MysqlDbname u can pass this setting u chosen use webapi"
-    read -p "(v2ray_mysqldbname (Default 1):" v2ray_mysqldbname
-    [ -z "${v2ray_mysqldbname}" ] && v2ray_mysqldbname=1
+    read -p "(v2ray_mysqldbname (Default sspanel):" v2ray_mysqldbname
+    [ -z "${v2ray_mysqldbname}" ] && v2ray_mysqldbname="sspanel"
     echo
     echo "---------------------------"
     echo "v2ray_mysqldbname = ${v2ray_mysqldbname}"
