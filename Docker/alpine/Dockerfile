@@ -17,7 +17,7 @@ COPY --from=builder /usr/bin/v2ray/v2ctl /usr/bin/v2ray/
 COPY --from=builder /usr/bin/v2ray/geoip.dat /usr/bin/v2ray/
 COPY --from=builder /usr/bin/v2ray/geosite.dat /usr/bin/v2ray/
 COPY config.json  /etc/v2ray/config.json
-
+COPY runV2ray.sh  /usr/bin/v2ray/runV2ray.sh
 RUN set -ex && \
     apk --no-cache add dcron ca-certificates openssl coreutils bind-tools curl socat && \
     update-ca-certificates && \
@@ -25,6 +25,7 @@ RUN set -ex && \
     mkdir /var/log/v2ray/ && \
     chmod +x /usr/bin/v2ray/v2ctl && \
     chmod +x /usr/bin/v2ray/v2ray && \
+    chmod +x /usr/bin/v2ray/runV2ray.sh && \
     rm -rf /var/cache/apk/*
 
 RUN mkdir -p /var/log/cron && mkdir -m 0644 -p /var/spool/cron/crontabs && touch /var/log/cron/cron.log && mkdir -m 0644 -p /etc/cron.d
@@ -42,17 +43,4 @@ ENV PATH /usr/bin/v2ray:$PATH
 VOLUME  /var/log/v2ray/ /root/.acme.sh/
 WORKDIR /var/log/v2ray/
 
-CMD     sed -i "s|\"port\": 2333,|\"port\": ${api_port},|"  "/etc/v2ray/config.json" &&\
-        sed -i "s|\"https://google.com\"|\"${sspanel_url}\"|g" "/etc/v2ray/config.json" && \
-        sed -i "s/\"55fUxDGFzH3n\"/\"${key}\"/g" "/etc/v2ray/config.json" && \
-        sed -i "s/123456/${node_id}/g" "/etc/v2ray/config.json" && \
-        sed -i "s/\"SpeedTestCheckRate\": 6/\"SpeedTestCheckRate\": ${speedtest}/g" "/etc/v2ray/config.json" && \
-        sed -i "s/\"downWithPanel\": 6/\"downWithPanel\": ${downWithPanel}/g" "/etc/v2ray/config.json" && \
-        sed -i "s|"https://bing.com"|"${MYSQLHOST}"|g" "/etc/v2ray/config.json" && \
-        sed -i "s/"demo_dbname"/"${MYSQLDBNAME}"/g" "/etc/v2ray/config.json" && \
-        sed -i "s|\"demo_user\"|\"${MYSQLUSR}\"|g" "/etc/v2ray/config.json" && \
-        sed -i "s/"demo_dbpassword"/"${MYSQLPASSWD}"/g" "/etc/v2ray/config.json" && \
-        sed -i "s/3306,/${MYSQLPORT},/g" "/etc/v2ray/config.json" && \
-        sed -i "s|\"paneltype\": 0|\"paneltype\": ${PANELTYPE}|g" "/etc/v2ray/config.json" && \
-        sed -i "s|\"usemysql\": 0|\"usemysql\": ${usemysql}|g" "/etc/v2ray/config.json" && \
-        v2ray -config=/etc/v2ray/config.json
+CMD sh /usr/bin/v2ray/runV2ray.sh
