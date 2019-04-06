@@ -59,5 +59,5 @@ if [ ! -z "${usemysql}" ]
     then
       sed -i "s|\"usemysql\": 0|\"usemysql\": ${usemysql}|g" "/etc/v2ray/config.json"
 fi
-
+cat /etc/v2ray/config.json
 v2ray -config=/etc/v2ray/config.json
