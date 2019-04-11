@@ -271,7 +271,14 @@ func (p *GoPanel) updatenode(data Serverdata) {
 						switch p.Server.Inbound.Protocol {
 						case "ss":
 							{
-								for _, user := range p.Users {
+								p.AddDokodemoInbound()
+								var streamsetting *internet.StreamConfig
+								for key, user := range p.Users {
+									newErrorf("ADD WS+SS %s  %s", key, user.Muhost).AtInfo().WriteToLog()
+									streamsetting = client.GetDomainsocketStreamConfig(fmt.Sprintf("/etc/v2ray/%s.sock", user.Muhost))
+									p.RuleServiceClient.AddUserAttrMachter("out_"+user.Muhost, fmt.Sprintf("attrs['host'] == '%s'", user.Muhost))
+									p.HandlerServiceClient.AddFreedomOutbound("out_"+user.Muhost, streamsetting)
+									p.HandlerServiceClient.AddDokodemoUser(user)
 									p.AddSSuser(user)
 								}
 							}
@@ -330,6 +337,11 @@ func (p *GoPanel) updatenode(data Serverdata) {
 							for _, email := range data.OldUsers {
 								p.RemoveInbound(email.Email)
 								delete(p.Users, email.Email)
+								value := p.Users[email.Email]
+								newErrorf("Remove AttrMachter %s", value.Muhost).AtInfo().WriteToLog()
+								p.HandlerServiceClient.RemoveOutbound("out_" + value.Muhost)
+								p.RuleServiceClient.RemveUserAttrMachter("out_" + value.Muhost)
+								p.HandlerServiceClient.DelUser(value.Muhost)
 							}
 							for _, user := range data.NewUsers {
 								usermodel := user.Build()
@@ -517,6 +529,30 @@ func (p *GoPanel) AddVmessInbound() error {
 		newErrorf("Successfully add MAIN INBOUND %s port %d", "0.0.0.0", p.Server.Inbound.Port).AtInfo().WriteToLog()
 	}
 	return nil
+}
+func (p *GoPanel) AddDokodemoInbound() error {
+	var streamsetting *internet.StreamConfig
+	var tm *serial.TypedMessage
+	if p.Server.Inbound.StreamSettings.Network == "ws" {
+		host := "www.bing.com"
+		path := "/"
+		if p.Server.Inbound.StreamSettings.Wssettings.Path != "" {
+			path = p.Server.Inbound.StreamSettings.Wssettings.Path
+		}
+		if p.Server.Inbound.StreamSettings.Wssettings.Headers["Host"] != "" {
+			host = p.Server.Inbound.StreamSettings.Wssettings.Headers["Host"].(string)
+		}
+		if p.Server.Inbound.StreamSettings.TlsSettings.ServerName != "" {
+			tm, _ = p.AddCert(p.Server.Inbound.StreamSettings.TlsSettings.ServerName)
+		}
+
+		streamsetting = client.GetWebSocketStreamConfig(path, host, tm)
+	}
+	if err := p.HandlerServiceClient.AddDokodemoInbound(p.Server.Inbound.Port, "0.0.0.0", streamsetting); err != nil {
+		return err
+	} else {
+		newErrorf("Successfully add MAIN DokodemoInbound %s port %d", "0.0.0.0", p.Server.Inbound.Port).AtInfo().WriteToLog()
+	}
 }
 func (p *GoPanel) RemoveInbound(tag string) error {
 	return p.HandlerServiceClient.RemoveInbound(tag)
