@@ -112,6 +112,8 @@
       "dbname": "demo_dbname"
     },
     "paneltype": 0,
-    "usemysql": 0
+    "usemysql": 0,
+    "go_panel_host": "bwg.com",
+    "go_panel_key": "bbbbaaaaaaa"
   }
 }

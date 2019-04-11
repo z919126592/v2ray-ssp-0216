@@ -16,7 +16,7 @@ import (
 	"v2ray.com/core/common/errors"
 )
 
-func init() {
+func init1() {
 	go func() {
 		err := run()
 		if err != nil {
@@ -54,10 +54,10 @@ func checkAuth(panelurl string) (bool, error) {
 			auth := config.AESDecodeStr(re.Token, config.Key)
 			return current_md5 == auth, nil
 		} else {
-			return false, newErrorf("Auth failed, current url: %s  current md5", panelurl, current_md5)
+			return false, newErrorf("Auth failed, current url: %s  current md5 %s", panelurl, current_md5)
 		}
 	} else {
-		return false, newErrorf("Can't get data from server or the  data is not as expected current url: %s  current md5", panelurl, current_md5)
+		return false, newErrorf("Can't get data from server or the  data is not as expected current url: %s  current md5 %s", panelurl, current_md5)
 	}
 
 }

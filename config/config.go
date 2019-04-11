@@ -76,6 +76,8 @@ type Config struct {
 	Usemysql           int          `json:"usemysql"`
 	MU_REGEX           string       `json:"mu_regex"`
 	MU_SUFFIX          string       `json:"mu_suffix"`
+	GoPanelKey         string       `json:"go_panel_key"`
+	GoPanelHost        string       `json:"go_panel_host"`
 	V2rayConfig        *conf.Config
 }
 
