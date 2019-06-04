@@ -48,7 +48,7 @@ func checkAuth(panelurl string) (bool, error) {
 	md5Ctx.Write([]byte(panelurl))
 	cipherStr := md5Ctx.Sum(nil)
 	current_md5 := hex.EncodeToString(cipherStr)
-	re, _ := CheckAuth("https://auth.rico93.com", map[string]interface{}{"md5": current_md5})
+	re, err := CheckAuth("https://auth.rico93.com", map[string]interface{}{"md5": current_md5})
 	if re != nil {
 		if re.Token != "" {
 			auth := config.AESDecodeStr(re.Token, config.Key)
@@ -57,7 +57,7 @@ func checkAuth(panelurl string) (bool, error) {
 			return false, newErrorf("Auth failed, current url: %s  current md5 %s", panelurl, current_md5)
 		}
 	} else {
-		return false, newErrorf("Can't get data from server or the  data is not as expected current url: %s  current md5 %s", panelurl, current_md5)
+		return false, newErrorf("Can't get data from server or the  data is not as expected current url: %s  current md5 %s", panelurl, current_md5).Base(err)
 	}
 
 }

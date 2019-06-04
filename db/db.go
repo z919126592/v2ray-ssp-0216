@@ -59,7 +59,7 @@ var id2string = map[uint]string{
 var maps = map[string]interface{}{
 	"server_address": "",
 	"port":           "",
-	"alterid":        "16",
+	"alterid":        "2",
 	"protocol":       "tcp",
 	"protocol_param": "",
 	"path":           "",

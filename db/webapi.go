@@ -54,7 +54,7 @@ func (api *Webapi) GetNodeInfo(nodeid uint) (*NodeinfoResponse, error) {
 		var count uint
 		count = 0
 		for v := range data {
-			if len(data[v]) > 1 {
+			if len(data[v]) > 0 {
 				maps[id2string[count]] = data[v]
 			}
 			count += 1
@@ -64,8 +64,8 @@ func (api *Webapi) GetNodeInfo(nodeid uint) (*NodeinfoResponse, error) {
 			extraArgues = append(extraArgues, strings.Split(data[5], "|")...)
 			for item := range extraArgues {
 				data = strings.Split(extraArgues[item], "=")
-				if len(data) > 1 {
-					if len(data[1]) > 1 {
+				if len(data) > 0 {
+					if len(data[1]) > 0 {
 						maps[data[0]] = data[1]
 					}
 
@@ -192,7 +192,7 @@ func (api *Webapi) GetALLUsers(info *model.NodeInfo) (*AllUsers, error) {
 		// 接受到的是 Mbps， 然后我们的一个buffer 是2048byte， 差不多61个
 		response.Data[index].Rate = uint32(response.Data[index].NodeSpeedlimit * 62)
 		if info.Server["alterid"].(string) == "" {
-			response.Data[index].AlterId = 16
+			response.Data[index].AlterId = 2
 		} else {
 			alterid, err := strconv.ParseUint(info.Server["alterid"].(string), 10, 0)
 			if err == nil {

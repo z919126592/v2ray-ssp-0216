@@ -133,7 +133,7 @@ func (api *SSRpanel) GetALLUsers(info *model.NodeInfo) (*AllUsers, error) {
 		response.Data[index].Rate = uint32(response.Data[index].NodeSpeedlimit * 62)
 
 		if info.Server["alterid"].(string) == "" {
-			response.Data[index].AlterId = 16
+			response.Data[index].AlterId = 2
 		} else {
 			alterid, err := strconv.ParseUint(info.Server["alterid"].(string), 10, 0)
 			if err == nil {
