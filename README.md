@@ -1,3 +1,5 @@
+不知道什么版本的rico v2ray免费版
+只做备份 已将docker-compose备份 正常对接
 # v2ray-sspanel-v3-mod_Uim-plugin
 # 免费版本
 # 使用教程请看wiki
